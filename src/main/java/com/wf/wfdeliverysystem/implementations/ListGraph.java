@@ -6,11 +6,18 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 
 public class ListGraph<T> implements IWFDelivery<T> {
-    //Vertex list
+    //Initial conditions
+    private final boolean isGuided;
+    private final boolean isMultiple;
+    private final boolean allowsLoop;
+    //Structure
     private final ArrayList<ListVertex<T>> list;
     //Empty constructor
-    public ListGraph() {
+    public ListGraph(boolean isGuided, boolean isMultiple, boolean allowsLoop) {
         list = new ArrayList<>();
+        this.isGuided = isGuided;
+        this.isMultiple = isMultiple;
+        this.allowsLoop = allowsLoop;
     }
 
     /**
@@ -33,14 +40,22 @@ public class ListGraph<T> implements IWFDelivery<T> {
      * @param weight connection weight
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
-    public void addEdge(T start, T end, int weight) throws VertexNotFoundException {
+    public void addEdge(T start, T end, String id, int weight) throws VertexNotFoundException, LoopsNotAllowedException, MultipleEdgesNotAllowedException {
         int startVertex = searchVertexIndex(start);
         int endVertex = searchVertexIndex(end);
         if (startVertex == -1 || endVertex == -1) {
             throw new VertexNotFoundException("Error. Vertex not found.");
         }
-        list.get(startVertex).getEdges().add(new ListEdge<>(list.get(endVertex), list.get(startVertex), weight));
-        list.get(endVertex).getEdges().add(new ListEdge<>(list.get(startVertex), list.get(endVertex), weight));
+        if (startVertex == endVertex && !allowsLoop) {
+            throw new LoopsNotAllowedException("Error. Loops not allowed.");
+        }
+        if (searchEdge(start, end, id) && !isMultiple) {
+            throw new MultipleEdgesNotAllowedException("Error. Multiple edges between vertex not allowed.");
+        }
+        if (!isGuided) {
+            list.get(endVertex).getEdges().add(new ListEdge<>(list.get(endVertex), list.get(startVertex), id, weight));
+        }
+        list.get(startVertex).getEdges().add(new ListEdge<>(list.get(startVertex), list.get(endVertex), id, weight));
     }
 
     /**
@@ -70,17 +85,19 @@ public class ListGraph<T> implements IWFDelivery<T> {
      * @throws EdgeNotFoundException if edge doesn't exist
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
-    public void deleteEdge(T start, T end) throws EdgeNotFoundException, VertexNotFoundException {
+    public void deleteEdge(T start, T end, String id) throws EdgeNotFoundException, VertexNotFoundException {
         int startIndex = searchVertexIndex(start);
         int endIndex = searchVertexIndex(end);
         if (startIndex == -1 || endIndex == -1) {
             throw new VertexNotFoundException("Error. One vertex not found.");
         }
-        if (!searchEdge(start, end)) {
-            throw new EdgeNotFoundException("Error. Edge not found: " + start + " -> " + end);
+        if (!searchEdge(start, end, id)) {
+            throw new EdgeNotFoundException("Error. Edge not found: " + start + " -> " + end + " (" + id + ")");
         }
-        list.get(startIndex).getEdges().remove(searchEdgeIndex(list.get(startIndex), list.get(endIndex)));
-        list.get(endIndex).getEdges().remove(searchEdgeIndex(list.get(endIndex), list.get(startIndex)));
+        if (!isGuided) {
+            list.get(endIndex).getEdges().remove(searchEdgeIndex(list.get(endIndex), list.get(startIndex), id));
+        }
+        list.get(startIndex).getEdges().remove(searchEdgeIndex(list.get(startIndex), list.get(endIndex), id));
     }
 
     /**
@@ -103,9 +120,9 @@ public class ListGraph<T> implements IWFDelivery<T> {
      * @param end destination vertex
      * @return index in the origin vertex edge list
      */
-    private int searchEdgeIndex(ListVertex<T> start, ListVertex<T> end) {
+    private int searchEdgeIndex(ListVertex<T> start, ListVertex<T> end, String id) {
         for (int i = 0; i < start.getEdges().size(); i++) {
-            if (start.getEdges().get(i).getLeftVertex() == start && start.getEdges().get(i).getRightVertex() == end) {
+            if (start.getEdges().get(i).getLeftVertex() == start && start.getEdges().get(i).getRightVertex() == end && start.getEdges().get(i).getId().equals(id)) {
                 return i;
             }
         }
@@ -133,14 +150,14 @@ public class ListGraph<T> implements IWFDelivery<T> {
      * @return true if it exists and false otherwise
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
-    public boolean searchEdge(T start, T end) throws VertexNotFoundException {
+    public boolean searchEdge(T start, T end, String id) throws VertexNotFoundException {
         if (!searchVertex(start) || !searchVertex(end)) {
-            throw new VertexNotFoundException("Error. One or both vertex not found.");
+            throw new VertexNotFoundException("Error. One vertex not found.");
         }
         int startIndex = searchVertexIndex(start);
         for (int i = 0; i < list.get(startIndex).getEdges().size(); i++) {
             ListEdge<T> edge = list.get(startIndex).getEdges().get(i);
-            if (edge.getLeftVertex().getValue() == start && edge.getRightVertex().getValue() == end) {
+            if (edge.getLeftVertex().getValue() == start && edge.getRightVertex().getValue() == end && edge.getId().equals(id)) {
                 return true;
             }
         }
@@ -157,6 +174,41 @@ public class ListGraph<T> implements IWFDelivery<T> {
             vertices.add(tVertex.getValue());
         }
         return vertices;
+    }
+
+    /**
+     * Returns all neighbors from a vertex
+     * @param vertex Vertex to analyze
+     * @return list of neighbors (vertices)
+     * @throws VertexNotFoundException if the vertex doesn't exist
+     */
+    public ArrayList<T> getAllNeighbors(T vertex) throws VertexNotFoundException {
+        int vertexIndex = searchVertexIndex(vertex);
+        ArrayList<T> neighbors = new ArrayList<>();
+        if (vertexIndex == -1) {
+            throw new VertexNotFoundException("Vertex not found: " + vertex);
+        }
+        for (int i = 0; i < list.get(vertexIndex).getEdges().size(); i++) {
+            if (!validateNeighborsArrayList(neighbors, list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue()) && list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue() != vertex) {
+                neighbors.add(list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue());
+            }
+        }
+        return neighbors;
+    }
+
+    /**
+     * Validates if a neighbor is already added
+     * @param arrayList list of current neighbors
+     * @param value vertex to compare
+     * @return true if it exists and false otherwise
+     */
+    private boolean validateNeighborsArrayList(ArrayList<T> arrayList, T value) {
+        for (T t : arrayList) {
+            if (t == value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
