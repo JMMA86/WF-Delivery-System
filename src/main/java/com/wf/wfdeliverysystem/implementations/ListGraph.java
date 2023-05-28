@@ -27,7 +27,7 @@ public class ListGraph<T> implements IWFDelivery<T> {
      */
     public void addVertex(T vertex) throws VertexAlreadyAddedException {
         if (searchVertexIndex(vertex) == -1) {
-            list.add(new Vertex<>(vertex));
+            list.add(new ListVertex<>(vertex));
         } else {
             throw new VertexAlreadyAddedException("Vertex found: " + vertex);
         }
