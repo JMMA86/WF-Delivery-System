@@ -8,6 +8,7 @@ public class ListVertex<T> {
 
     public ListVertex(T value) {
         this.value = value;
+        edges = new ArrayList<>();
     }
 
     public T getValue() {
