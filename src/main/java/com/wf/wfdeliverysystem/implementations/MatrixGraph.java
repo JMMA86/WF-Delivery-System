@@ -181,5 +181,7 @@ public class MatrixGraph<T> {
                 }
             }
         }
+
+        return null;
     }
 }
