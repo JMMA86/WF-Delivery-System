@@ -4,6 +4,8 @@ import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class ListGraph<T> implements IGraph<T> {
     //Initial conditions
@@ -221,7 +223,34 @@ public class ListGraph<T> implements IGraph<T> {
 
     @Override
     public void bfs(T value) throws VertexNotFoundException {
-
+        ListVertex<T> root;
+        try {
+            root = list.get(searchVertexIndex(value));
+        } catch (IndexOutOfBoundsException e) {
+            throw new VertexNotFoundException("Vertex not found: " + value);
+        }
+        for (ListVertex<T> tVertex : list) {
+            tVertex.setColor(Color.WHITE);
+            tVertex.setDistance(Integer.MAX_VALUE);
+            tVertex.setFather(null);
+        }
+        root.setColor(Color.GRAY);
+        root.setDistance(0);
+        root.setFather(null);
+        Queue<ListVertex<T>> queue = new LinkedList<>();
+        queue.add(root);
+        while (!queue.isEmpty()) {
+            ListVertex<T> u = queue.poll();
+            for (int i = 0; i < u.getEdges().size(); i++) {
+                if (u.getEdges().get(i).getRightVertex().getColor() == Color.WHITE){
+                    u.getEdges().get(i).getRightVertex().setColor(Color.GRAY);
+                    u.getEdges().get(i).getRightVertex().setDistance(u.getDistance() + 1);
+                    u.getEdges().get(i).getRightVertex().setFather(u);
+                    queue.add(u.getEdges().get(i).getRightVertex());
+                }
+            }
+            u.setColor(Color.BLACK);
+        }
     }
 
     @Override
