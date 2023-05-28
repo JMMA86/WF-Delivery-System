@@ -1,10 +1,11 @@
 package com.wf.wfdeliverysystem.implementations;
 
+import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
 
-public class MatrixGraph<T> {
+public class MatrixIGraph<T> implements IGraph<T> {
     private final MatrixVertex<T>[] vertexes;
     private final int[][] matrix;
     private final boolean isDirected;
@@ -16,7 +17,7 @@ public class MatrixGraph<T> {
      * @param isDirected Determines if the graph is directed
      * @param vertexes Determines the amount of vertexes in the graph
      */
-    public MatrixGraph(boolean isDirected, int vertexes) {
+    public MatrixIGraph(boolean isDirected, int vertexes) {
         this.isDirected = isDirected;
         this.vertexes = new MatrixVertex[vertexes];
         this.matrix = new int[vertexes][vertexes];
@@ -29,7 +30,7 @@ public class MatrixGraph<T> {
      * @param isPondered Determines if the graph have weights in its connections
      * @param vertexes Determines the amount of vertexes in the graph
      */
-    public MatrixGraph(boolean isDirected, int vertexes, boolean isPondered) {
+    public MatrixIGraph(boolean isDirected, int vertexes, boolean isPondered) {
         this.isDirected = isDirected;
         this.vertexes = new MatrixVertex[vertexes];
         this.matrix = new int[vertexes][vertexes];
@@ -52,6 +53,11 @@ public class MatrixGraph<T> {
         }
 
         return false;
+    }
+
+    @Override
+    public void addEdge(T start, T end, String id, int weight) throws VertexNotFoundException, LoopsNotAllowedException, MultipleEdgesNotAllowedException {
+
     }
 
     /**
@@ -127,6 +133,21 @@ public class MatrixGraph<T> {
         }
     }
 
+    @Override
+    public void deleteEdge(T start, T end, String id) throws EdgeNotFoundException, VertexNotFoundException {
+
+    }
+
+    @Override
+    public ArrayList<T> getAllVertex() {
+        return null;
+    }
+
+    @Override
+    public ArrayList<T> getAllNeighbors(T vertex) throws VertexNotFoundException {
+        return null;
+    }
+
     /**
      * This function deletes an edge connection from the adjacency matrix
      *
@@ -155,6 +176,26 @@ public class MatrixGraph<T> {
         }
 
         return -1;
+    }
+
+    @Override
+    public boolean searchEdge(T start, T end, String id) throws VertexNotFoundException {
+        return false;
+    }
+
+    @Override
+    public void bfs(T value) throws VertexNotFoundException {
+
+    }
+
+    @Override
+    public ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
+        return null;
+    }
+
+    @Override
+    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
+        return null;
     }
 
     public MatrixVertex<T> getVertex(T value) {

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestListGraph {
+public class TestListIGraph {
     private ListGraph<Integer> graphAdjacencyList;
 
     void newGraphSetup01() {

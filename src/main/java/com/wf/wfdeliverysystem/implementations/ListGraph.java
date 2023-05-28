@@ -1,9 +1,11 @@
 package com.wf.wfdeliverysystem.implementations;
 
 import com.wf.wfdeliverysystem.exceptions.*;
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 
-public class ListGraph<T> {
+public class ListGraph<T> implements IGraph<T> {
     //Initial conditions
     private final boolean isGuided;
     private final boolean isMultiple;
@@ -160,6 +162,21 @@ public class ListGraph<T> {
             }
         }
         return false;
+    }
+
+    @Override
+    public void bfs(T value) throws VertexNotFoundException {
+
+    }
+
+    @Override
+    public ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
+        return null;
+    }
+
+    @Override
+    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
+        return null;
     }
 
     /**
