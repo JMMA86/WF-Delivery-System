@@ -344,4 +344,11 @@ public class TestListGraph {
         assertEquals(neighborsAmount, 0);
     }
 
+    //bfs()
+
+    @Test
+    public void testCheckPathBetweenConnectedHouses() {
+
+    }
+
 }
