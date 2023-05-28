@@ -1,7 +1,6 @@
 package com.wf.wfdeliverysystem.model;
 
 import javafx.util.Pair;
-
 import java.util.ArrayList;
 
 public interface IWFDelivery<V> {
