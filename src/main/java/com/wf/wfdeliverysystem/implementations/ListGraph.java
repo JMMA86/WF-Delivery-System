@@ -25,6 +25,7 @@ public class ListGraph<T> implements IGraph<T> {
      * @param vertex Value to ve inserted
      * @throws VertexAlreadyAddedException If vertex is already added
      */
+    @Override
     public void addVertex(T vertex) throws VertexAlreadyAddedException {
         if (searchVertexIndex(vertex) == -1) {
             list.add(new ListVertex<>(vertex));
@@ -40,6 +41,7 @@ public class ListGraph<T> implements IGraph<T> {
      * @param weight connection weight
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
+    @Override
     public void addEdge(T start, T end, String id, int weight) throws VertexNotFoundException, LoopsNotAllowedException, MultipleEdgesNotAllowedException {
         int startVertex = searchVertexIndex(start);
         int endVertex = searchVertexIndex(end);
@@ -63,6 +65,7 @@ public class ListGraph<T> implements IGraph<T> {
      * @param vertexValue vertex to be deleted
      * @throws VertexNotFoundException if the vertex doesn't exist
      */
+    @Override
     public void deleteVertex(T vertexValue) throws VertexNotFoundException {
         int vertexIndex = searchVertexIndex(vertexValue);
         if (vertexIndex == -1) {
@@ -85,6 +88,7 @@ public class ListGraph<T> implements IGraph<T> {
      * @throws EdgeNotFoundException if edge doesn't exist
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
+    @Override
     public void deleteEdge(T start, T end, String id) throws EdgeNotFoundException, VertexNotFoundException {
         int startIndex = searchVertexIndex(start);
         int endIndex = searchVertexIndex(end);
@@ -98,6 +102,55 @@ public class ListGraph<T> implements IGraph<T> {
             list.get(endIndex).getEdges().remove(searchEdgeIndex(list.get(endIndex), list.get(startIndex), id));
         }
         list.get(startIndex).getEdges().remove(searchEdgeIndex(list.get(startIndex), list.get(endIndex), id));
+    }
+
+    /**
+     * Returns all vertex in the graph
+     * @return a list with all of them
+     */
+    @Override
+    public ArrayList<T> getAllVertex() {
+        ArrayList<T> vertices = new ArrayList<>();
+        for (ListVertex<T> tVertex : list) {
+            vertices.add(tVertex.getValue());
+        }
+        return vertices;
+    }
+
+    /**
+     * Returns all neighbors from a vertex
+     * @param vertex Vertex to analyze
+     * @return list of neighbors (vertices)
+     * @throws VertexNotFoundException if the vertex doesn't exist
+     */
+    @Override
+    public ArrayList<T> getAllNeighbors(T vertex) throws VertexNotFoundException {
+        int vertexIndex = searchVertexIndex(vertex);
+        ArrayList<T> neighbors = new ArrayList<>();
+        if (vertexIndex == -1) {
+            throw new VertexNotFoundException("Vertex not found: " + vertex);
+        }
+        for (int i = 0; i < list.get(vertexIndex).getEdges().size(); i++) {
+            if (!validateNeighborsArrayList(neighbors, list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue()) && list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue() != vertex) {
+                neighbors.add(list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue());
+            }
+        }
+        return neighbors;
+    }
+
+    /**
+     * Validates if a neighbor is already added
+     * @param arrayList list of current neighbors
+     * @param value vertex to compare
+     * @return true if it exists and false otherwise
+     */
+    private boolean validateNeighborsArrayList(ArrayList<T> arrayList, T value) {
+        for (T t : arrayList) {
+            if (t == value) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -134,6 +187,7 @@ public class ListGraph<T> implements IGraph<T> {
      * @param vertex vertex to be searched
      * @return true if it exists and false otherwise
      */
+    @Override
     public boolean searchVertex(T vertex) {
         for (ListVertex<T> tVertex : list) {
             if (tVertex.getValue() == vertex) {
@@ -150,6 +204,7 @@ public class ListGraph<T> implements IGraph<T> {
      * @return true if it exists and false otherwise
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
+    @Override
     public boolean searchEdge(T start, T end, String id) throws VertexNotFoundException {
         if (!searchVertex(start) || !searchVertex(end)) {
             throw new VertexNotFoundException("Error. One vertex not found.");
@@ -177,52 +232,5 @@ public class ListGraph<T> implements IGraph<T> {
     @Override
     public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
         return null;
-    }
-
-    /**
-     * Returns all vertex in the graph
-     * @return a list with all of them
-     */
-    public ArrayList<T> getAllVertex() {
-        ArrayList<T> vertices = new ArrayList<>();
-        for (ListVertex<T> tVertex : list) {
-            vertices.add(tVertex.getValue());
-        }
-        return vertices;
-    }
-
-    /**
-     * Returns all neighbors from a vertex
-     * @param vertex Vertex to analyze
-     * @return list of neighbors (vertices)
-     * @throws VertexNotFoundException if the vertex doesn't exist
-     */
-    public ArrayList<T> getAllNeighbors(T vertex) throws VertexNotFoundException {
-        int vertexIndex = searchVertexIndex(vertex);
-        ArrayList<T> neighbors = new ArrayList<>();
-        if (vertexIndex == -1) {
-            throw new VertexNotFoundException("Vertex not found: " + vertex);
-        }
-        for (int i = 0; i < list.get(vertexIndex).getEdges().size(); i++) {
-            if (!validateNeighborsArrayList(neighbors, list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue()) && list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue() != vertex) {
-                neighbors.add(list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue());
-            }
-        }
-        return neighbors;
-    }
-
-    /**
-     * Validates if a neighbor is already added
-     * @param arrayList list of current neighbors
-     * @param value vertex to compare
-     * @return true if it exists and false otherwise
-     */
-    private boolean validateNeighborsArrayList(ArrayList<T> arrayList, T value) {
-        for (T t : arrayList) {
-            if (t == value) {
-                return true;
-            }
-        }
-        return false;
     }
 }
