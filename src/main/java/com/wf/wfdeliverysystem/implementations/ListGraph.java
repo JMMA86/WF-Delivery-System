@@ -5,6 +5,7 @@ import javafx.util.Pair;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 import java.util.Queue;
 
 public class ListGraph<T> implements IGraph<T> {
@@ -255,7 +256,67 @@ public class ListGraph<T> implements IGraph<T> {
 
     @Override
     public ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
-        return null;
+        //Validations
+        if (!searchVertex(startVertex) || !searchVertex(endVertex)) {
+            throw new VertexNotFoundException("Error. One vertex not found.");
+        }
+        bfs(startVertex);
+        int startVertexIndex = searchVertexIndex(startVertex);
+        int endVertexIndex = searchVertexIndex(endVertex);
+        if (list.get(endVertexIndex).getDistance() == Integer.MAX_VALUE) {
+            throw new VertexNotAchievableException("Error. Vertex not achievable.");
+        }
+        //Start algorithm
+        ArrayList<ListEdge<T>> chain = new ArrayList<>(); //Fathers (return)
+        PriorityQueue<ListVertex<T>> q = new PriorityQueue<>();
+        for (int i = 0; i < list.size(); i++) {
+            if (i != startVertexIndex) {
+                list.get(i).setDistance(Integer.MAX_VALUE);
+            } else {
+                list.get(i).setDistance(0);
+            }
+            list.get(i).setFather(null);
+            q.add(list.get(i));
+        }
+        //Obtain edges
+        while (!q.isEmpty() && q.peek() != list.get(endVertexIndex)) {
+            ListVertex<T> u = q.poll();
+            for (int i = 0; i < u.getEdges().size(); i++) {
+                int alt = u.getDistance() + u.getEdges().get(i).getWeight();
+                if (alt < u.getEdges().get(i).getRightVertex().getDistance()) {
+                    u.getEdges().get(i).getRightVertex().setDistance(alt);
+                    u.getEdges().get(i).getRightVertex().setFather(u);
+                    //Update priority
+                    q.remove(u.getEdges().get(i).getRightVertex());
+                    q.add(u.getEdges().get(i).getRightVertex());
+                }
+            }
+        }
+        //Update chain
+        ListVertex<T> vertexObj = list.get(endVertexIndex);
+        ListEdge<T> minEdge = null;
+        while (vertexObj.getFather() != null) {
+            ListVertex<T> vertexFather = vertexObj.getFather();
+            for (int i = 0; i < vertexFather.getEdges().size(); i++) {
+                if (vertexFather.getEdges().get(i).getRightVertex() == vertexObj) {
+                    if (minEdge == null) {
+                        minEdge = vertexFather.getEdges().get(i);
+                    } else if (minEdge.getWeight() > vertexFather.getEdges().get(i).getWeight()) {
+                        minEdge = vertexFather.getEdges().get(i);
+                    }
+                }
+            }
+            chain.add(0, minEdge);
+            //Restart
+            minEdge = null;
+            vertexObj = vertexFather;
+        }
+        ArrayList<T> values = new ArrayList<>();
+        values.add(list.get(startVertexIndex).getValue());
+        for (ListEdge<T> tListEdge : chain) {
+            values.add(tListEdge.getRightVertex().getValue());
+        }
+        return values;
     }
 
     @Override
