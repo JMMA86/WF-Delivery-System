@@ -96,7 +96,7 @@ public class ListGraph<T> implements IWFDelivery<T> {
     //Searcher returns if edge exists
     public boolean searchEdge(T start, T end) throws VertexNotFoundException {
         if (!searchVertex(start) || !searchVertex(end)) {
-            throw new VertexNotFoundException("Error. One vertex not found.");
+            throw new VertexNotFoundException("Error. One or both vertex not found.");
         }
         int startIndex = searchVertexIndex(start);
         for (int i = 0; i < list.get(startIndex).getEdges().size(); i++) {
