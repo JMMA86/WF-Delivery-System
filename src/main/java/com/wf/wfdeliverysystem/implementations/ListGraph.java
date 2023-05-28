@@ -53,9 +53,9 @@ public class ListGraph<T> implements IWFDelivery<T> {
             throw new MultipleEdgesNotAllowedException("Error. Multiple edges between vertex not allowed.");
         }
         if (!isGuided) {
-            list.get(endVertex).getEdges().add(new Edge<>(list.get(startVertex), id, weight));
+            list.get(endVertex).getEdges().add(new ListEdge<>(list.get(endVertex), list.get(startVertex), id, weight));
         }
-        list.get(startVertex).getEdges().add(new Edge<>(list.get(endVertex), id, weight));
+        list.get(startVertex).getEdges().add(new ListEdge<>(list.get(startVertex), list.get(endVertex), id, weight));
     }
 
     /**
@@ -68,9 +68,9 @@ public class ListGraph<T> implements IWFDelivery<T> {
         if (vertexIndex == -1) {
             throw new VertexNotFoundException("Error. Vertex not found: " + vertexValue);
         }
-        for (Vertex<T> tVertex : list) {
+        for (ListVertex<T> tVertex : list) {
             for (int j = 0; j < tVertex.getEdges().size(); j++) {
-                if (tVertex.getEdges().get(j).getVertex() == list.get(vertexIndex)) {
+                if (tVertex.getEdges().get(j).getLeftVertex() == list.get(vertexIndex) || tVertex.getEdges().get(j).getRightVertex() == list.get(vertexIndex)) {
                     tVertex.getEdges().remove(j);
                 }
             }
@@ -120,9 +120,9 @@ public class ListGraph<T> implements IWFDelivery<T> {
      * @param end destination vertex
      * @return index in the origin vertex edge list
      */
-    private int searchEdgeIndex(Vertex<T> start, Vertex<T> end, String id) {
+    private int searchEdgeIndex(ListVertex<T> start, ListVertex<T> end, String id) {
         for (int i = 0; i < start.getEdges().size(); i++) {
-            if (start.getEdges().get(i).getVertex() == end && start.getEdges().get(i).getId().equals(id)) {
+            if (start.getEdges().get(i).getLeftVertex() == start && start.getEdges().get(i).getRightVertex() == end && start.getEdges().get(i).getId().equals(id)) {
                 return i;
             }
         }
@@ -135,7 +135,7 @@ public class ListGraph<T> implements IWFDelivery<T> {
      * @return true if it exists and false otherwise
      */
     public boolean searchVertex(T vertex) {
-        for (Vertex<T> tVertex : list) {
+        for (ListVertex<T> tVertex : list) {
             if (tVertex.getValue() == vertex) {
                 return true;
             }
@@ -156,8 +156,8 @@ public class ListGraph<T> implements IWFDelivery<T> {
         }
         int startIndex = searchVertexIndex(start);
         for (int i = 0; i < list.get(startIndex).getEdges().size(); i++) {
-            Edge<T> edge = list.get(startIndex).getEdges().get(i);
-            if (edge.getVertex().getValue() == end && edge.getId().equals(id)) {
+            ListEdge<T> edge = list.get(startIndex).getEdges().get(i);
+            if (edge.getLeftVertex().getValue() == start && edge.getRightVertex().getValue() == end && edge.getId().equals(id)) {
                 return true;
             }
         }
@@ -170,7 +170,7 @@ public class ListGraph<T> implements IWFDelivery<T> {
      */
     public ArrayList<T> getAllVertex() {
         ArrayList<T> vertices = new ArrayList<>();
-        for (Vertex<T> tVertex : list) {
+        for (ListVertex<T> tVertex : list) {
             vertices.add(tVertex.getValue());
         }
         return vertices;
@@ -189,8 +189,8 @@ public class ListGraph<T> implements IWFDelivery<T> {
             throw new VertexNotFoundException("Vertex not found: " + vertex);
         }
         for (int i = 0; i < list.get(vertexIndex).getEdges().size(); i++) {
-            if (!validateNeighborsArrayList(neighbors, list.get(vertexIndex).getEdges().get(i).getVertex().getValue()) && list.get(vertexIndex).getEdges().get(i).getVertex().getValue() != vertex) {
-                neighbors.add(list.get(vertexIndex).getEdges().get(i).getVertex().getValue());
+            if (!validateNeighborsArrayList(neighbors, list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue()) && list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue() != vertex) {
+                neighbors.add(list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue());
             }
         }
         return neighbors;
