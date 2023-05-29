@@ -4,8 +4,8 @@ import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
+import java.util.PriorityQueue;
 
 public class MatrixGraph<T> implements IGraph<T> {
     private final MatrixVertex<T>[] vertexes;
@@ -16,7 +16,7 @@ public class MatrixGraph<T> implements IGraph<T> {
      * This constructor is used to create a graph that is not pondered
      *
      * @param isDirected Determines if the graph is directed
-     * @param vertexes Determines the amount of vertexes in the graph
+     * @param vertexes   Determines the amount of vertexes in the graph
      */
     public MatrixGraph(boolean isDirected, int vertexes) {
         this.isDirected = isDirected;
@@ -29,7 +29,7 @@ public class MatrixGraph<T> implements IGraph<T> {
      *
      * @param isDirected Determines if the graph is directed
      * @param isPondered Determines if the graph have weights in its connections
-     * @param vertexes Determines the amount of vertexes in the graph
+     * @param vertexes   Determines the amount of vertexes in the graph
      */
     public MatrixGraph(boolean isDirected, int vertexes, boolean isPondered) {
         this.isDirected = isDirected;
@@ -57,8 +57,8 @@ public class MatrixGraph<T> implements IGraph<T> {
      * This function adds an edge between to vertexes, for this
      * both vertexes must exists
      *
-     * @param start The vertex 1
-     * @param end The vertex 2
+     * @param start  The vertex 1
+     * @param end    The vertex 2
      * @param weight The weight between the two vertex
      */
     @Override
@@ -107,7 +107,7 @@ public class MatrixGraph<T> implements IGraph<T> {
      * This function deletes an edge connection from the adjacency matrix
      *
      * @param start The first vertex
-     * @param end The second vertex
+     * @param end   The second vertex
      */
     @Override
     public void deleteEdge(T start, T end, String id) throws EdgeNotFoundException, VertexNotFoundException {
@@ -174,6 +174,37 @@ public class MatrixGraph<T> implements IGraph<T> {
 
     @Override
     public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
-        return null;
+        int originPos = searchVertexIndex(value);
+        if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
+        MatrixVertex<T> origin = vertexes[originPos];
+        ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
+        PriorityQueue<MatrixVertex<T>> toVisit = new PriorityQueue<>(Comparator.comparingInt(MatrixVertex::getDistance));
+        toVisit.add(vertexes[originPos]);
+        for (MatrixVertex<T> vertex : vertexes) {
+            if (vertex != null) {
+                vertex.setDistance(Integer.MAX_VALUE);
+                vertex.setColor(Color.WHITE);
+                toVisit.add(vertex);
+            }
+        }
+
+        vertexes[originPos].setDistance(0);
+
+        while (!toVisit.isEmpty()) {
+            int temp = searchVertexIndex(toVisit.poll().getValue());
+            for (int i = 0; i < matrix.length; i++) {
+                if (matrix[temp][i] != 0) {
+                    if (vertexes[i].getColor().equals(Color.WHITE) && matrix[temp][i] < vertexes[i].getDistance()) {
+                        toVisit.remove(vertexes[i]);
+                        vertexes[i].setDistance(matrix[temp][i]);
+                        toVisit.add(vertexes[i]);
+                        predecessors.add(new Pair<>(vertexes[temp].getValue(), vertexes[i].getValue()));
+                    }
+                }
+            }
+            vertexes[temp].setColor(Color.BLACK);
+        }
+
+        return predecessors;
     }
 }
