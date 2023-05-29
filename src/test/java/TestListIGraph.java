@@ -240,20 +240,16 @@ public class TestListIGraph {
 
     @Test
     public void createMinimumSpanTree() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException {
+        //Arrange
         newGraphSetup02();
+        //Art
+        ArrayList<Pair<Integer, Integer>> mst = graphAdjacencyList.prim(0);
+        //Assert
+        assertEquals(8, mst.size());
 
-        try {
-            ArrayList<Pair<Integer, Integer>> mst = graphAdjacencyList.prim(0);
-
-            assertEquals(8, mst.size());
-
-            for (Pair<Integer, Integer> p : mst) {
-                graphAdjacencyList.searchEdge(p.getKey(), p.getValue(), "v1");
-//                System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
-            }
-
-        } catch (VertexNotAchievableException e) {
-            fail();
+        for (Pair<Integer, Integer> p : mst) {
+            graphAdjacencyList.searchEdge(p.getKey(), p.getValue(), "v1");
+            //System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
         }
     }
 }

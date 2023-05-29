@@ -106,10 +106,10 @@ public class TestMatrixGraph {
 
             for (Pair<String, String> p : mst) {
                 assertTrue(matrixGraph.searchEdge(p.getKey(), p.getValue(), ""));
-//                System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
+                //System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
             }
         } catch (LoopsNotAllowedException | VertexAlreadyAddedException | MultipleEdgesNotAllowedException |
-                 VertexNotFoundException | VertexNotAchievableException e) {
+                 VertexNotFoundException e) {
             fail();
         }
     }
