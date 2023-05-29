@@ -1,16 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.wf.wfdeliverysystem.controller.InitController">
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wf.wfdeliverysystem.controller.InitController">
+
+    <Label text="WFDelivery">
+      <font>
+         <Font name="System Bold" size="36.0" />
+      </font></Label>
+
+    <HBox spacing="96">
+        <HBox spacing="24">
+            <Label text="Headquarter: " />
+            <RadioButton fx:id="hq1TB" selected="true" text="first">
+            <toggleGroup>
+               <ToggleGroup fx:id="hqTG" />
+            </toggleGroup></RadioButton>
+            <RadioButton fx:id="h12TB" text="second" toggleGroup="$hqTG" />
+            <RadioButton fx:id="hq3TB" text="third" toggleGroup="$hqTG" />
+        </HBox>
+        <HBox spacing="24">
+            <Label text="Graph type:" />
+            <RadioButton fx:id="matrixTB" selected="true" text="Matrix">
+            <toggleGroup>
+               <ToggleGroup fx:id="typeTG" />
+            </toggleGroup></RadioButton>
+            <RadioButton fx:id="listTB" text="List" toggleGroup="$typeTG" />
+        </HBox>
+    </HBox>
+
+    <Canvas fx:id="canvas" height="800" onMouseClicked="#onVertexSelected" width="1500" />
+
+    <HBox spacing="24">
+        <Button fx:id="checkDeliveryBtn" onAction="#onCheckDelivery" text="Check Delivery Path" />
+        <Button fx:id="generateTourBtn" onAction="#onGenerateTour" text="Generate Advertising Tour" />
+        <Button fx:id="viewGraphsBtn" onAction="#onViewGraphs" text="View Graph Representations" />
+    </HBox>
+
     <padding>
-        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
+        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
     </padding>
-
-    <Label fx:id="welcomeText"/>
-    <Button text="Hello!" onAction="#onHelloButtonClick"/>
 </VBox>

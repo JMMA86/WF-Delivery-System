@@ -1,6 +1,7 @@
 package com.wf.wfdeliverysystem;
 
 import com.wf.wfdeliverysystem.controller.InitController;
+import com.wf.wfdeliverysystem.model.Manager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -9,29 +10,27 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Launcher extends Application {
+    private static final Manager manager = new Manager();
+
+    public static Manager getManager() {
+        return manager;
+    }
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader loader = renderView("init-view.fxml", 1280, 720);
-        InitController controller = loader.getController();
-        controller.initialize();
-    }
-
-    public static FXMLLoader renderView(String fxml, int width, int height) {
-        FXMLLoader fxmlLoader;
-        try {
-            fxmlLoader = new FXMLLoader(Launcher.class.getResource(fxml));
-            Scene scene = new Scene(fxmlLoader.load(), width, height);
-            Stage stage = new Stage();
-            stage.setTitle("Hello!");
-            stage.setScene(scene);
-            stage.show();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return fxmlLoader;
+        FXMLLoader fxmlLoader = new FXMLLoader(Launcher.class.getResource("init-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1280, 720);
+        stage.setTitle("WF Delivery System");
+        stage.setFullScreen(true);
+        stage.setScene(scene);
+        stage.setOnCloseRequest(windowEvent -> {
+            InitController controller = fxmlLoader.getController();
+            controller.setRunning(false);
+        });
+        stage.show();
     }
 
     public static void main(String[] args) {
         launch();
     }
+
 }
