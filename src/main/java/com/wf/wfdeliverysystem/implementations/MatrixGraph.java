@@ -194,8 +194,63 @@ public class MatrixGraph<T> implements IGraph<T> {
     }
 
     @Override
-    public ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
-        return null;
+    public ArrayList<Pair<T, T>> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
+        //Validations
+        if (searchVertexIndex(startVertex) == -1 || searchVertexIndex(endVertex) == -1) throw new VertexNotFoundException("Error. One vertex not found.");
+        bfs(startVertex);
+        int startVertexIndex = searchVertexIndex(startVertex);
+        int endVertexIndex = searchVertexIndex(endVertex);
+        if (vertices[endVertexIndex].getDistance() == Integer.MAX_VALUE) throw new VertexNotAchievableException("Error. Vertex not achievable.");
+        //Start algorithm
+        ArrayList<Pair<T, T>> chain = new ArrayList<>();
+        PriorityQueue<MatrixVertex<T>> q = new PriorityQueue<>();
+        for (int i = 0; i < vertices.length; i++) {
+            if (i != startVertexIndex) {
+                vertices[i].setDistance(Integer.MAX_VALUE);
+            } else {
+                vertices[i].setDistance(0);
+            }
+            vertices[i].setFather(null);
+            q.add(vertices[i]);
+        }
+        //Obtain edges
+        while (!q.isEmpty() && q.peek() != vertices[endVertexIndex]) {
+            MatrixVertex<T> u = q.poll();
+            int uIndex = searchVertexIndex(u.getValue());
+            for (int i = 0; i < vertices.length; i++) {
+                if (matrix[i][uIndex] != 0 && i != uIndex) {
+                    int alt = u.getDistance() + matrix[i][uIndex];
+                    if (alt < vertices[i].getDistance()) {
+                        vertices[i].setDistance(alt);
+                        vertices[i].setFather(u);
+                        //Update priority
+                        q.remove(vertices[i]);
+                        q.add(vertices[i]);
+                    }
+                }
+            }
+        }
+        //Update chain
+        MatrixVertex<T> vertexObj = vertices[endVertexIndex];
+        Pair<T, T> minEdge = null;
+        while (vertexObj.getFather() != null) {
+            MatrixVertex<T> vertexFather = vertexObj.getFather();
+            int fatherIndex = searchVertexIndex(vertexFather.getValue());
+            for (int i = 0; i < vertices.length; i++) {
+                if (matrix[i][fatherIndex] != 0 && i != fatherIndex) {
+                    if (vertices[i] == vertexObj) {
+                        if (minEdge == null || matrix[searchVertexIndex(minEdge.getValue())][searchVertexIndex(minEdge.getKey())] > matrix[i][fatherIndex]) {
+                            minEdge = new Pair<>(vertices[i].getValue(), vertexObj.getValue());
+                        }
+                    }
+                }
+            }
+            chain.add(0, minEdge);
+            //Restart
+            minEdge = null;
+            vertexObj = vertexFather;
+        }
+        return chain;
     }
 
     @Override

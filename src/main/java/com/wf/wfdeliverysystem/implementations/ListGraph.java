@@ -188,7 +188,7 @@ public class ListGraph<T> implements IGraph<T> {
     }
 
     @Override
-    public ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
+    public ArrayList<Pair<T, T>> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
         //Validations
         if (searchVertexIndex(startVertex) == -1 || searchVertexIndex(endVertex) == -1) {
             throw new VertexNotFoundException("Error. One vertex not found.");
@@ -244,10 +244,9 @@ public class ListGraph<T> implements IGraph<T> {
             minEdge = null;
             vertexObj = vertexFather;
         }
-        ArrayList<T> values = new ArrayList<>();
-        values.add(list.get(startVertexIndex).getValue());
+        ArrayList<Pair<T, T>> values = new ArrayList<>();
         for (ListEdge<T> tListEdge : chain) {
-            values.add(tListEdge.getRightVertex().getValue());
+            values.add(new Pair<>(tListEdge.getLeftVertex().getValue(), tListEdge.getRightVertex().getValue()));
         }
         return values;
     }

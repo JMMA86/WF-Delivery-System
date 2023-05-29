@@ -18,7 +18,7 @@ public interface IGraph<T> {
     //Does the bfs algorithm from a given vertex
     void bfs(T value) throws VertexNotFoundException;
     //Does the Dijkstra algorithm
-    ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException;
+    ArrayList<Pair<T, T>> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException;
     //Calculates the minimum spread tree by using Floyd Warshall algorithm (Prim)
     ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException;
 }
