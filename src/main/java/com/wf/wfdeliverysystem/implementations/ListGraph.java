@@ -212,7 +212,7 @@ public class ListGraph<T> implements IGraph<T> {
         }
         //Start algorithm
         ArrayList<ListEdge<T>> chain = new ArrayList<>(); //Fathers (return)
-        PriorityQueue<ListVertex<T>> q = new PriorityQueue<>();
+        PriorityQueue<ListVertex<T>> q = new PriorityQueue<>(Comparator.comparingInt(ListVertex::getDistance));
         for (int i = 0; i < list.size(); i++) {
             if (i != startVertexIndex) {
                 list.get(i).setDistance(Integer.MAX_VALUE);

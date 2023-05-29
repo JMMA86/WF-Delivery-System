@@ -66,6 +66,7 @@ public class MatrixGraph<T> implements IGraph<T> {
         int vertex2 = searchVertexIndex(end);
 
         if (vertex1 == vertex2) throw new LoopsNotAllowedException("Loops are not allowed");
+        if (matrix[vertex1][vertex2] != 0) throw new MultipleEdgesNotAllowedException("Multiples edges are not allowed");
 
         if (vertex1 != -1 && vertex2 != -1) {
             if (isDirected) {
@@ -217,7 +218,7 @@ public class MatrixGraph<T> implements IGraph<T> {
         if (vertices[endVertexIndex].getDistance() == Integer.MAX_VALUE) throw new VertexNotAchievableException("Error. Vertex not achievable.");
         //Start algorithm
         ArrayList<Pair<T, T>> chain = new ArrayList<>();
-        PriorityQueue<MatrixVertex<T>> q = new PriorityQueue<>();
+        PriorityQueue<MatrixVertex<T>> q = new PriorityQueue<>(Comparator.comparingInt(MatrixVertex::getDistance));
         for (int i = 0; i < vertices.length; i++) {
             if (i != startVertexIndex) {
                 vertices[i].setDistance(Integer.MAX_VALUE);
@@ -246,7 +247,6 @@ public class MatrixGraph<T> implements IGraph<T> {
         }
         //Update chain
         MatrixVertex<T> vertexObj = vertices[endVertexIndex];
-        Pair<T, T> minEdge = null;
         while (vertexObj.getFather() != null) {
             MatrixVertex<T> vertexFather = vertexObj.getFather();
             int fatherIndex = searchVertexIndex(vertexFather.getValue());

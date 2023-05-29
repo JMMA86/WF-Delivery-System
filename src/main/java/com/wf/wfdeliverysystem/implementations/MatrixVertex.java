@@ -1,9 +1,8 @@
 package com.wf.wfdeliverysystem.implementations;
 
-public class MatrixVertex<T> implements Comparable<MatrixVertex<T>> {
-    private T Value;
+public class MatrixVertex<T> {
+    private final T Value;
     private int distance;
-    private int time;
     private Color color;
     private MatrixVertex<T> father;
 
@@ -15,24 +14,12 @@ public class MatrixVertex<T> implements Comparable<MatrixVertex<T>> {
         return Value;
     }
 
-    public void setValue(T value) {
-        Value = value;
-    }
-
     public int getDistance() {
         return distance;
     }
 
     public void setDistance(int distance) {
         this.distance = distance;
-    }
-
-    public int getTime() {
-        return time;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
     }
 
     public Color getColor() {
@@ -49,10 +36,5 @@ public class MatrixVertex<T> implements Comparable<MatrixVertex<T>> {
 
     public void setFather(MatrixVertex<T> father) {
         this.father = father;
-    }
-
-    @Override
-    public int compareTo(MatrixVertex<T> o) {
-        return Integer.compare(this.distance, o.getDistance());
     }
 }
