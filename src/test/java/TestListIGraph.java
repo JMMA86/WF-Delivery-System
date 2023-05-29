@@ -1,6 +1,9 @@
 import com.wf.wfdeliverysystem.implementations.ListGraph;
 import com.wf.wfdeliverysystem.exceptions.*;
+import javafx.util.Pair;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -233,5 +236,24 @@ public class TestListIGraph {
         newGraphSetup02();
         //Assert
         assertThrows(EdgeNotFoundException.class, () -> graphAdjacencyList.deleteEdge(1, 0, "v1"));
+    }
+
+    @Test
+    public void createMinimumSpanTree() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException {
+        newGraphSetup02();
+
+        try {
+            ArrayList<Pair<Integer, Integer>> mst = graphAdjacencyList.prim(0);
+
+            assertEquals(8, mst.size());
+
+            for (Pair<Integer, Integer> p : mst) {
+                graphAdjacencyList.searchEdge(p.getKey(), p.getValue(), "v1");
+//                System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
+            }
+
+        } catch (VertexNotAchievableException e) {
+            fail();
+        }
     }
 }
