@@ -43,8 +43,9 @@ public class MatrixGraph<T> implements IGraph<T> {
      *
      * @param value The value of the new vertex
      */
-    public void addVertex(T value) {
+    public void addVertex(T value) throws VertexAlreadyAddedException {
         boolean stop = false;
+        if (searchVertexIndex(value) != -1) throw new VertexAlreadyAddedException("There is a vertex with the same value");
         for (int i = 0; i < vertexes.length && !stop; i++) {
             if (vertexes[i] == null) {
                 vertexes[i] = new MatrixVertex<>(value);
@@ -132,7 +133,7 @@ public class MatrixGraph<T> implements IGraph<T> {
      */
     private int searchVertexIndex(T value) {
         for (int i = 0; i < matrix.length; i++) {
-            if (vertexes[i].getValue().equals(value)) {
+            if (vertexes[i] != null && vertexes[i].getValue().equals(value)) {
                 return i;
             }
         }
@@ -176,7 +177,6 @@ public class MatrixGraph<T> implements IGraph<T> {
     public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
         int originPos = searchVertexIndex(value);
         if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
-        MatrixVertex<T> origin = vertexes[originPos];
         ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
         PriorityQueue<MatrixVertex<T>> toVisit = new PriorityQueue<>(Comparator.comparingInt(MatrixVertex::getDistance));
         toVisit.add(vertexes[originPos]);
