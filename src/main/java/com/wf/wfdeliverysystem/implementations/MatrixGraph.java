@@ -3,12 +3,10 @@ package com.wf.wfdeliverysystem.implementations;
 import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 public class MatrixGraph<T> implements IGraph<T> {
-    private final MatrixVertex<T>[] vertexes;
+    private final MatrixVertex<T>[] vertices;
     private final int[][] matrix;
     private final boolean isDirected;
 
@@ -16,12 +14,12 @@ public class MatrixGraph<T> implements IGraph<T> {
      * This constructor is used to create a graph that is not pondered
      *
      * @param isDirected Determines if the graph is directed
-     * @param vertexes   Determines the amount of vertexes in the graph
+     * @param vertices   Determines the amount of vertices in the graph
      */
-    public MatrixGraph(boolean isDirected, int vertexes) {
+    public MatrixGraph(boolean isDirected, int vertices) {
         this.isDirected = isDirected;
-        this.vertexes = new MatrixVertex[vertexes];
-        this.matrix = new int[vertexes][vertexes];
+        this.vertices = new MatrixVertex[vertices];
+        this.matrix = new int[vertices][vertices];
     }
 
     /**
@@ -29,12 +27,12 @@ public class MatrixGraph<T> implements IGraph<T> {
      *
      * @param isDirected Determines if the graph is directed
      * @param isPondered Determines if the graph have weights in its connections
-     * @param vertexes   Determines the amount of vertexes in the graph
+     * @param vertices   Determines the amount of vertices in the graph
      */
-    public MatrixGraph(boolean isDirected, int vertexes, boolean isPondered) {
+    public MatrixGraph(boolean isDirected, int vertices, boolean isPondered) {
         this.isDirected = isDirected;
-        this.vertexes = new MatrixVertex[vertexes];
-        this.matrix = new int[vertexes][vertexes];
+        this.vertices = new MatrixVertex[vertices];
+        this.matrix = new int[vertices][vertices];
     }
 
     /**
@@ -46,17 +44,17 @@ public class MatrixGraph<T> implements IGraph<T> {
     public void addVertex(T value) throws VertexAlreadyAddedException {
         boolean stop = false;
         if (searchVertexIndex(value) != -1) throw new VertexAlreadyAddedException("There is a vertex with the same value");
-        for (int i = 0; i < vertexes.length && !stop; i++) {
-            if (vertexes[i] == null) {
-                vertexes[i] = new MatrixVertex<>(value);
+        for (int i = 0; i < vertices.length && !stop; i++) {
+            if (vertices[i] == null) {
+                vertices[i] = new MatrixVertex<>(value);
                 stop = true;
             }
         }
     }
 
     /**
-     * This function adds an edge between to vertexes, for this
-     * both vertexes must exists
+     * This function adds an edge between to vertices, for this
+     * both vertices must exist
      *
      * @param start  The vertex 1
      * @param end    The vertex 2
@@ -71,10 +69,10 @@ public class MatrixGraph<T> implements IGraph<T> {
 
         if (vertex1 != -1 && vertex2 != -1) {
             if (isDirected) {
-                matrix[vertex1][vertex2] = 1;
+                matrix[vertex1][vertex2] = weight;
             } else {
-                matrix[vertex1][vertex2] = 1;
-                matrix[vertex2][vertex1] = 1;
+                matrix[vertex1][vertex2] = weight;
+                matrix[vertex2][vertex1] = weight;
             }
         } else {
             String vError = vertex1 == -1 ? "vertex1" : "vertex2";
@@ -91,9 +89,9 @@ public class MatrixGraph<T> implements IGraph<T> {
     public void deleteVertex(T value) throws VertexNotFoundException {
         int oldVerPos = searchVertexIndex(value);
         if (oldVerPos == -1) throw new VertexNotFoundException("There's no such vertex in the graph");
-        for (int i = 0; i < vertexes.length; i++) {
-            if (vertexes[i].getValue().equals(value)) {
-                vertexes[i] = null;
+        for (int i = 0; i < vertices.length; i++) {
+            if (vertices[i].getValue().equals(value)) {
+                vertices[i] = null;
                 break;
             }
         }
@@ -133,7 +131,7 @@ public class MatrixGraph<T> implements IGraph<T> {
      */
     private int searchVertexIndex(T value) {
         for (int i = 0; i < matrix.length; i++) {
-            if (vertexes[i] != null && vertexes[i].getValue().equals(value)) {
+            if (vertices[i] != null && vertices[i].getValue().equals(value)) {
                 return i;
             }
         }
@@ -165,7 +163,34 @@ public class MatrixGraph<T> implements IGraph<T> {
 
     @Override
     public void bfs(T value) throws VertexNotFoundException {
-
+        //Validation
+        int vertexIndex = searchVertexIndex(value);
+        if (vertexIndex == -1) throw new VertexNotFoundException("The vertex was not found");
+        //Execution
+        for (MatrixVertex<T> vertex : vertices) {
+            vertex.setColor(Color.WHITE);
+            vertex.setDistance(Integer.MAX_VALUE);
+            vertex.setFather(null);
+        }
+        vertices[vertexIndex].setColor(Color.GRAY);
+        vertices[vertexIndex].setDistance(0);
+        vertices[vertexIndex].setFather(null);
+        Queue<MatrixVertex<T>> queue = new LinkedList<>();
+        queue.add(vertices[vertexIndex]);
+        while (!queue.isEmpty()) {
+            MatrixVertex<T> u = queue.poll();
+            for (int j = 0; j < vertices.length; j++) {
+                if (matrix[j][vertexIndex] != 0 && j != vertexIndex) {
+                    if (vertices[j].getColor() == Color.WHITE) {
+                        vertices[j].setColor(Color.GRAY);
+                        vertices[j].setDistance(u.getDistance() + 1);
+                        vertices[j].setFather(u);
+                        queue.add(vertices[j]);
+                    }
+                }
+            }
+            u.setColor(Color.BLACK);
+        }
     }
 
     @Override
@@ -179,31 +204,31 @@ public class MatrixGraph<T> implements IGraph<T> {
         if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
         ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
         PriorityQueue<MatrixVertex<T>> toVisit = new PriorityQueue<>(Comparator.comparingInt(MatrixVertex::getDistance));
-        toVisit.add(vertexes[originPos]);
-        for (MatrixVertex<T> vertex : vertexes) {
-            if (vertex != null && vertex != vertexes[originPos]) {
+        toVisit.add(vertices[originPos]);
+        for (MatrixVertex<T> vertex : vertices) {
+            if (vertex != null && vertex != vertices[originPos]) {
                 vertex.setDistance(Integer.MAX_VALUE);
                 vertex.setColor(Color.WHITE);
                 toVisit.add(vertex);
             }
         }
 
-        vertexes[originPos].setDistance(0);
-        toVisit.add(vertexes[originPos]);
+        vertices[originPos].setDistance(0);
+        toVisit.add(vertices[originPos]);
 
         while (!toVisit.isEmpty()) {
             int temp = searchVertexIndex(toVisit.poll().getValue());
             for (int i = 0; i < matrix.length; i++) {
                 if (matrix[temp][i] != 0) {
-                    if (vertexes[i].getColor().equals(Color.WHITE) && matrix[temp][i] < vertexes[i].getDistance()) {
-                        toVisit.remove(vertexes[i]);
-                        vertexes[i].setDistance(matrix[temp][i]);
-                        toVisit.add(vertexes[i]);
-                        predecessors.add(new Pair<>(vertexes[temp].getValue(), vertexes[i].getValue()));
+                    if (vertices[i].getColor().equals(Color.WHITE) && matrix[temp][i] < vertices[i].getDistance()) {
+                        toVisit.remove(vertices[i]);
+                        vertices[i].setDistance(matrix[temp][i]);
+                        toVisit.add(vertices[i]);
+                        predecessors.add(new Pair<>(vertices[temp].getValue(), vertices[i].getValue()));
                     }
                 }
             }
-            vertexes[temp].setColor(Color.BLACK);
+            vertices[temp].setColor(Color.BLACK);
         }
 
         return predecessors;

@@ -5,6 +5,7 @@ public class MatrixVertex<T> {
     private int distance;
     private int time;
     private Color color;
+    private MatrixVertex<T> father;
 
     public MatrixVertex(T Value) {
         this.Value = Value;
@@ -40,5 +41,13 @@ public class MatrixVertex<T> {
 
     public void setColor(Color color) {
         this.color = color;
+    }
+
+    public MatrixVertex<T> getFather() {
+        return father;
+    }
+
+    public void setFather(MatrixVertex<T> father) {
+        this.father = father;
     }
 }
