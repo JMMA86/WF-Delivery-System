@@ -156,6 +156,17 @@ public class ListGraph<T> implements IGraph<T> {
     }
 
     @Override
+    public int calculateDistance(T start, T end) throws VertexNotFoundException, VertexNotAchievableException {
+        if (searchVertexIndex(start) == -1 || searchVertexIndex(end) == -1) throw new VertexNotFoundException("Error. One vertex not found.");
+        bfs(start);
+        if (list.get(searchVertexIndex(end)).getColor() == Color.WHITE) {
+            throw new VertexNotAchievableException("Error. Vertex not achievable.");
+        } else {
+            return list.get(searchVertexIndex(end)).getDistance();
+        }
+    }
+
+    @Override
     public void bfs(T value) throws VertexNotFoundException {
         ListVertex<T> root;
         try {

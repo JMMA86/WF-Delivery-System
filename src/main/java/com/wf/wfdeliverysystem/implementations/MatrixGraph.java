@@ -162,6 +162,19 @@ public class MatrixGraph<T> implements IGraph<T> {
     }
 
     @Override
+    public int calculateDistance(T start, T end) throws VertexNotFoundException, VertexNotAchievableException {
+        int startIndex = searchVertexIndex(start);
+        int endIndex = searchVertexIndex(end);
+        if (startIndex == -1 || endIndex == -1) throw new VertexNotFoundException("Error. One vertex not found.");
+        bfs(start);
+        if (vertices[endIndex].getColor() == Color.WHITE) {
+            throw new VertexNotAchievableException("Error. Vertex not achievable.");
+        } else {
+            return vertices[endIndex].getDistance();
+        }
+    }
+
+    @Override
     public void bfs(T value) throws VertexNotFoundException {
         //Validation
         int vertexIndex = searchVertexIndex(value);

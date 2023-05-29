@@ -1,6 +1,6 @@
 package com.wf.wfdeliverysystem.implementations;
 
-public class MatrixVertex<T> {
+public class MatrixVertex<T> implements Comparable<MatrixVertex<T>> {
     private T Value;
     private int distance;
     private int time;
@@ -49,5 +49,10 @@ public class MatrixVertex<T> {
 
     public void setFather(MatrixVertex<T> father) {
         this.father = father;
+    }
+
+    @Override
+    public int compareTo(MatrixVertex<T> o) {
+        return Integer.compare(this.distance, o.getDistance());
     }
 }

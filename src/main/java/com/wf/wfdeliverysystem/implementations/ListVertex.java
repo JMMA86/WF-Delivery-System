@@ -2,7 +2,7 @@ package com.wf.wfdeliverysystem.implementations;
 
 import java.util.ArrayList;
 
-public class ListVertex<T> {
+public class ListVertex<T> implements Comparable<ListVertex<T>> {
     //Vertex values
     private T value;
     private ArrayList<ListEdge<T>> edges;
@@ -46,5 +46,10 @@ public class ListVertex<T> {
 
     public void setFather(ListVertex<T> father) {
         this.father = father;
+    }
+
+    @Override
+    public int compareTo(ListVertex<T> o) {
+        return Integer.compare(this.distance, o.getDistance());
     }
 }

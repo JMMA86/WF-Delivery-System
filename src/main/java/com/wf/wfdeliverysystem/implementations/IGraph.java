@@ -15,6 +15,8 @@ public interface IGraph<T> {
     void deleteVertex(T vertex) throws VertexNotFoundException;
     //Deletes an edge from the graph
     void deleteEdge(T start, T end, String id) throws EdgeNotFoundException, VertexNotFoundException;
+    //Returns the distance from a vertex to another
+    int calculateDistance(T start, T end) throws VertexNotFoundException, VertexNotAchievableException;
     //Does the bfs algorithm from a given vertex
     void bfs(T value) throws VertexNotFoundException;
     //Does the Dijkstra algorithm
