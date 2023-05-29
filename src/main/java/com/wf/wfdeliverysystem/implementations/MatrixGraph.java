@@ -181,7 +181,7 @@ public class MatrixGraph<T> implements IGraph<T> {
         PriorityQueue<MatrixVertex<T>> toVisit = new PriorityQueue<>(Comparator.comparingInt(MatrixVertex::getDistance));
         toVisit.add(vertexes[originPos]);
         for (MatrixVertex<T> vertex : vertexes) {
-            if (vertex != null) {
+            if (vertex != null && vertex != vertexes[originPos]) {
                 vertex.setDistance(Integer.MAX_VALUE);
                 vertex.setColor(Color.WHITE);
                 toVisit.add(vertex);
@@ -189,6 +189,7 @@ public class MatrixGraph<T> implements IGraph<T> {
         }
 
         vertexes[originPos].setDistance(0);
+        toVisit.add(vertexes[originPos]);
 
         while (!toVisit.isEmpty()) {
             int temp = searchVertexIndex(toVisit.poll().getValue());

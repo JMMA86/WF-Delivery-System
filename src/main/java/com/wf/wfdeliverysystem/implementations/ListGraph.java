@@ -2,10 +2,8 @@ package com.wf.wfdeliverysystem.implementations;
 
 import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
+
+import java.util.*;
 
 public class ListGraph<T> implements IGraph<T> {
     //Initial conditions
@@ -14,6 +12,7 @@ public class ListGraph<T> implements IGraph<T> {
     private final boolean allowsLoop;
     //Structure
     private final ArrayList<ListVertex<T>> list;
+
     //Empty constructor
     public ListGraph(boolean isGuided, boolean isMultiple, boolean allowsLoop) {
         list = new ArrayList<>();
@@ -24,6 +23,7 @@ public class ListGraph<T> implements IGraph<T> {
 
     /**
      * Adds a vertex to the list graph
+     *
      * @param vertex Value to ve inserted
      * @throws VertexAlreadyAddedException If vertex is already added
      */
@@ -38,8 +38,9 @@ public class ListGraph<T> implements IGraph<T> {
 
     /**
      * Adds an edge between two vertices
-     * @param start origin vertex
-     * @param end destination vertex
+     *
+     * @param start  origin vertex
+     * @param end    destination vertex
      * @param weight connection weight
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
@@ -79,6 +80,7 @@ public class ListGraph<T> implements IGraph<T> {
 
     /**
      * Deletes a vertex including all associated edges
+     *
      * @param vertexValue vertex to be deleted
      * @throws VertexNotFoundException if the vertex doesn't exist
      */
@@ -100,9 +102,10 @@ public class ListGraph<T> implements IGraph<T> {
 
     /**
      * Deletes an edge between two vertices
+     *
      * @param start origin vertex
-     * @param end destination vertex
-     * @throws EdgeNotFoundException if edge doesn't exist
+     * @param end   destination vertex
+     * @throws EdgeNotFoundException   if edge doesn't exist
      * @throws VertexNotFoundException if one of the vertices doesn't exist
      */
     @Override
@@ -123,6 +126,7 @@ public class ListGraph<T> implements IGraph<T> {
 
     /**
      * Used for other methods, returns index from list graph of any vertex
+     *
      * @param vertex vertex to be searched
      * @return index in the graph list
      */
@@ -137,8 +141,9 @@ public class ListGraph<T> implements IGraph<T> {
 
     /**
      * Used for other methods, returns index from edge list of a determinant vertex
+     *
      * @param start origin vertex
-     * @param end destination vertex
+     * @param end   destination vertex
      * @return index in the origin vertex edge list
      */
     private int searchEdgeIndex(ListVertex<T> start, ListVertex<T> end, String id) {
@@ -171,7 +176,7 @@ public class ListGraph<T> implements IGraph<T> {
         while (!queue.isEmpty()) {
             ListVertex<T> u = queue.poll();
             for (int i = 0; i < u.getEdges().size(); i++) {
-                if (u.getEdges().get(i).getRightVertex().getColor() == Color.WHITE){
+                if (u.getEdges().get(i).getRightVertex().getColor() == Color.WHITE) {
                     u.getEdges().get(i).getRightVertex().setColor(Color.GRAY);
                     u.getEdges().get(i).getRightVertex().setDistance(u.getDistance() + 1);
                     u.getEdges().get(i).getRightVertex().setFather(u);
@@ -249,6 +254,36 @@ public class ListGraph<T> implements IGraph<T> {
 
     @Override
     public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
-        return null;
+        int originPos = searchVertexIndex(value);
+        if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
+        ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
+        PriorityQueue<ListVertex<T>> toVisit = new PriorityQueue<>(Comparator.comparingInt(ListVertex::getDistance));
+        for (ListVertex<T> lv : list) {
+            if (lv != list.get(originPos)) {
+                lv.setDistance(Integer.MAX_VALUE);
+                lv.setColor(Color.WHITE);
+                toVisit.add(lv);
+            }
+        }
+
+        list.get(originPos).setDistance(0);
+        toVisit.add(list.get(originPos));
+
+        while (!toVisit.isEmpty()) {
+            ListVertex<T> temp = toVisit.poll();
+
+            for (ListEdge<T> ad : temp.getEdges()) {
+                if (ad.getRightVertex().getColor().equals(Color.WHITE) && ad.getWeight() < ad.getRightVertex().getDistance()) {
+                    toVisit.remove(ad.getRightVertex());
+                    ad.getRightVertex().setDistance(ad.getWeight());
+                    toVisit.add(ad.getRightVertex());
+                    predecessors.add(new Pair<>(temp.getValue(), ad.getRightVertex().getValue()));
+                }
+            }
+
+            temp.setColor(Color.BLACK);
+        }
+
+        return predecessors;
     }
 }
