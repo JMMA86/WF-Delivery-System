@@ -9,6 +9,8 @@ public interface IGraph<T> {
     void addVertex(T vertex) throws VertexAlreadyAddedException;
     //Adds an edge in the graph (always between two vertices)
     void addEdge(T start, T end, String id, int weight) throws VertexNotFoundException, LoopsNotAllowedException, MultipleEdgesNotAllowedException;
+    //Returns true if an edge exists
+    boolean searchEdge(T start, T end, String id) throws VertexNotFoundException;
     //Deletes a vertex from the graph
     void deleteVertex(T vertex) throws VertexNotFoundException;
     //Deletes an edge from the graph

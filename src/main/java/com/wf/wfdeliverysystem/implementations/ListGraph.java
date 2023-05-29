@@ -62,6 +62,21 @@ public class ListGraph<T> implements IGraph<T> {
         list.get(startVertex).getEdges().add(new ListEdge<>(list.get(startVertex), list.get(endVertex), id, weight));
     }
 
+    @Override
+    public boolean searchEdge(T start, T end, String id) throws VertexNotFoundException {
+        if (searchVertexIndex(start) == -1 || searchVertexIndex(end) == -1) {
+            throw new VertexNotFoundException("Error. One vertex not found.");
+        }
+        int startIndex = searchVertexIndex(start);
+        for (int i = 0; i < list.get(startIndex).getEdges().size(); i++) {
+            ListEdge<T> edge = list.get(startIndex).getEdges().get(i);
+            if (edge.getRightVertex().getValue() == end && edge.getId().equals(id)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Deletes a vertex including all associated edges
      * @param vertexValue vertex to be deleted
