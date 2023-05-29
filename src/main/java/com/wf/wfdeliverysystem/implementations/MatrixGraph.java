@@ -192,8 +192,9 @@ public class MatrixGraph<T> implements IGraph<T> {
         queue.add(vertices[vertexIndex]);
         while (!queue.isEmpty()) {
             MatrixVertex<T> u = queue.poll();
+            int uIndex = searchVertexIndex(u.getValue());
             for (int j = 0; j < vertices.length; j++) {
-                if (matrix[j][vertexIndex] != 0 && j != vertexIndex) {
+                if (matrix[uIndex][j] != 0 && j != uIndex) {
                     if (vertices[j].getColor() == Color.WHITE) {
                         vertices[j].setColor(Color.GRAY);
                         vertices[j].setDistance(u.getDistance() + 1);
@@ -231,8 +232,8 @@ public class MatrixGraph<T> implements IGraph<T> {
             MatrixVertex<T> u = q.poll();
             int uIndex = searchVertexIndex(u.getValue());
             for (int i = 0; i < vertices.length; i++) {
-                if (matrix[i][uIndex] != 0 && i != uIndex) {
-                    int alt = u.getDistance() + matrix[i][uIndex];
+                if (matrix[uIndex][i] != 0 && i != uIndex) {
+                    int alt = u.getDistance() + matrix[uIndex][i];
                     if (alt < vertices[i].getDistance()) {
                         vertices[i].setDistance(alt);
                         vertices[i].setFather(u);
@@ -250,17 +251,14 @@ public class MatrixGraph<T> implements IGraph<T> {
             MatrixVertex<T> vertexFather = vertexObj.getFather();
             int fatherIndex = searchVertexIndex(vertexFather.getValue());
             for (int i = 0; i < vertices.length; i++) {
-                if (matrix[i][fatherIndex] != 0 && i != fatherIndex) {
+                if (matrix[fatherIndex][i] != 0 && i != fatherIndex) {
                     if (vertices[i] == vertexObj) {
-                        if (minEdge == null || matrix[searchVertexIndex(minEdge.getValue())][searchVertexIndex(minEdge.getKey())] > matrix[i][fatherIndex]) {
-                            minEdge = new Pair<>(vertices[i].getValue(), vertexObj.getValue());
-                        }
+                        chain.add(0, new Pair<>(vertices[fatherIndex].getValue(), vertexObj.getValue()));
+                        break;
                     }
                 }
             }
-            chain.add(0, minEdge);
             //Restart
-            minEdge = null;
             vertexObj = vertexFather;
         }
         return chain;

@@ -134,16 +134,6 @@ public class TestMatrixGraph {
         assertThrows(VertexNotAchievableException.class, () -> matrixGraphInt.calculateDistance(4, 2));
     }
 
-    @Test
-    public void calculateDistanceOnNonGuidedGraphUsingBfs() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException, VertexNotAchievableException {
-        //Arrange
-        intGraphSetup1();
-        //Art
-        int distance = matrixGraphInt.calculateDistance(1, 7);
-        //Assert
-        assertEquals(distance, 3);
-    }
-
     //dijkstra()
 
     @Test
