@@ -174,7 +174,7 @@ public class MatrixGraph<T> implements IGraph<T> {
     }
 
     @Override
-    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
+    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException {
         int originPos = searchVertexIndex(value);
         if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
         ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
