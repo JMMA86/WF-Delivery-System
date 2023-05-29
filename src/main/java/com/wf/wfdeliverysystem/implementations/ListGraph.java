@@ -2,7 +2,6 @@ package com.wf.wfdeliverysystem.implementations;
 
 import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -54,7 +53,7 @@ public class ListGraph<T> implements IGraph<T> {
         if (startVertex == endVertex && !allowsLoop) {
             throw new LoopsNotAllowedException("Error. Loops not allowed.");
         }
-        if (searchEdge(start, end, id) && !isMultiple) {
+        if (searchEdgeIndex(list.get(startVertex), list.get(endVertex), id) != -1 && !isMultiple) {
             throw new MultipleEdgesNotAllowedException("Error. Multiple edges between vertex not allowed.");
         }
         if (!isGuided) {
@@ -98,62 +97,13 @@ public class ListGraph<T> implements IGraph<T> {
         if (startIndex == -1 || endIndex == -1) {
             throw new VertexNotFoundException("Error. One vertex not found.");
         }
-        if (!searchEdge(start, end, id)) {
+        if (searchEdgeIndex(list.get(startIndex), list.get(endIndex), id) == -1) {
             throw new EdgeNotFoundException("Error. Edge not found: " + start + " -> " + end + " (" + id + ")");
         }
         if (!isGuided) {
             list.get(endIndex).getEdges().remove(searchEdgeIndex(list.get(endIndex), list.get(startIndex), id));
         }
         list.get(startIndex).getEdges().remove(searchEdgeIndex(list.get(startIndex), list.get(endIndex), id));
-    }
-
-    /**
-     * Returns all vertex in the graph
-     * @return a list with all of them
-     */
-    @Override
-    public ArrayList<T> getAllVertex() {
-        ArrayList<T> vertices = new ArrayList<>();
-        for (ListVertex<T> tVertex : list) {
-            vertices.add(tVertex.getValue());
-        }
-        return vertices;
-    }
-
-    /**
-     * Returns all neighbors from a vertex
-     * @param vertex Vertex to analyze
-     * @return list of neighbors (vertices)
-     * @throws VertexNotFoundException if the vertex doesn't exist
-     */
-    @Override
-    public ArrayList<T> getAllNeighbors(T vertex) throws VertexNotFoundException {
-        int vertexIndex = searchVertexIndex(vertex);
-        ArrayList<T> neighbors = new ArrayList<>();
-        if (vertexIndex == -1) {
-            throw new VertexNotFoundException("Vertex not found: " + vertex);
-        }
-        for (int i = 0; i < list.get(vertexIndex).getEdges().size(); i++) {
-            if (!validateNeighborsArrayList(neighbors, list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue()) && list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue() != vertex) {
-                neighbors.add(list.get(vertexIndex).getEdges().get(i).getRightVertex().getValue());
-            }
-        }
-        return neighbors;
-    }
-
-    /**
-     * Validates if a neighbor is already added
-     * @param arrayList list of current neighbors
-     * @param value vertex to compare
-     * @return true if it exists and false otherwise
-     */
-    private boolean validateNeighborsArrayList(ArrayList<T> arrayList, T value) {
-        for (T t : arrayList) {
-            if (t == value) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -183,43 +133,6 @@ public class ListGraph<T> implements IGraph<T> {
             }
         }
         return -1;
-    }
-
-    /**
-     * Returns if a vertex exist
-     * @param vertex vertex to be searched
-     * @return true if it exists and false otherwise
-     */
-    @Override
-    public boolean searchVertex(T vertex) {
-        for (ListVertex<T> tVertex : list) {
-            if (tVertex.getValue() == vertex) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Returns if an edge exist
-     * @param start origin vertex
-     * @param end destination vertex
-     * @return true if it exists and false otherwise
-     * @throws VertexNotFoundException if one of the vertices doesn't exist
-     */
-    @Override
-    public boolean searchEdge(T start, T end, String id) throws VertexNotFoundException {
-        if (!searchVertex(start) || !searchVertex(end)) {
-            throw new VertexNotFoundException("Error. One vertex not found.");
-        }
-        int startIndex = searchVertexIndex(start);
-        for (int i = 0; i < list.get(startIndex).getEdges().size(); i++) {
-            ListEdge<T> edge = list.get(startIndex).getEdges().get(i);
-            if (edge.getLeftVertex().getValue() == start && edge.getRightVertex().getValue() == end && edge.getId().equals(id)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -257,7 +170,7 @@ public class ListGraph<T> implements IGraph<T> {
     @Override
     public ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
         //Validations
-        if (!searchVertex(startVertex) || !searchVertex(endVertex)) {
+        if (searchVertexIndex(startVertex) == -1 || searchVertexIndex(endVertex) == -1) {
             throw new VertexNotFoundException("Error. One vertex not found.");
         }
         bfs(startVertex);
