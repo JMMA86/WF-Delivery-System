@@ -9,18 +9,12 @@ public interface IGraph<T> {
     void addVertex(T vertex) throws VertexAlreadyAddedException;
     //Adds an edge in the graph (always between two vertices)
     void addEdge(T start, T end, String id, int weight) throws VertexNotFoundException, LoopsNotAllowedException, MultipleEdgesNotAllowedException;
+    //Returns true if an edge exists
+    boolean searchEdge(T start, T end, String id) throws VertexNotFoundException;
     //Deletes a vertex from the graph
     void deleteVertex(T vertex) throws VertexNotFoundException;
     //Deletes an edge from the graph
     void deleteEdge(T start, T end, String id) throws EdgeNotFoundException, VertexNotFoundException;
-    //Gets all vertices from the graph
-    ArrayList<T> getAllVertex();
-    //Gets all neighbors from one vertex in the graph
-    ArrayList<T> getAllNeighbors(T vertex) throws VertexNotFoundException;
-    //Returns true if a vertex exists
-    boolean searchVertex(T vertex);
-    //Returns true if an edge exists
-    boolean searchEdge(T start, T end, String id) throws VertexNotFoundException;
     //Does the bfs algorithm from a given vertex
     void bfs(T value) throws VertexNotFoundException;
     //Does the Dijkstra algorithm
