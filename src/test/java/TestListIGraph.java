@@ -1,11 +1,10 @@
 import com.wf.wfdeliverysystem.implementations.ListGraph;
 import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
-import org.junit.jupiter.api.Test;
-
+import org.junit.Test;
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 public class TestListIGraph {
     private ListGraph<Integer> graphAdjacencyList;
@@ -84,8 +83,13 @@ public class TestListIGraph {
     public void addVertexTest() {
         //Arrange
         newGraphSetup01();
-        //Assert
-        assertDoesNotThrow(() -> graphAdjacencyList.addVertex(0));
+        //Art
+        try {
+            graphAdjacencyList.addVertex(0);
+            //Assert
+        } catch (VertexAlreadyAddedException e) {
+            fail();
+        }
     }
 
     @Test
@@ -94,9 +98,13 @@ public class TestListIGraph {
         newGraphSetup01();
         //Art
         for (int i = 0; i <= 7; i++) {
-            //Assert
-            int finalI = i;
-            assertDoesNotThrow(() -> graphAdjacencyList.addVertex(finalI));
+            try {
+                graphAdjacencyList.addVertex(i);
+                //Assert
+            } catch (VertexAlreadyAddedException e) {
+                fail();
+            }
+
         }
     }
 
@@ -187,11 +195,13 @@ public class TestListIGraph {
     public void deleteMultipleVertexTest() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException {
         //Arrange
         newGraphSetup02();
-        //Assert
-        assertDoesNotThrow(() -> {
+        //Art
+        try {
             graphAdjacencyList.deleteVertex(0);
             graphAdjacencyList.deleteVertex(2);
-        });
+        } catch (VertexNotFoundException e) {
+            fail();
+        }
     }
 
     @Test
@@ -238,22 +248,68 @@ public class TestListIGraph {
         assertThrows(EdgeNotFoundException.class, () -> graphAdjacencyList.deleteEdge(1, 0, "v1"));
     }
 
+    //bfs()
+
+    @Test
+    public void calculateDistanceOnGuidedGraphUsingBfs() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException, VertexNotAchievableException {
+        //Arrange
+        newGraphSetup02();
+        //Art
+        int distance = graphAdjacencyList.calculateDistance(0, 6);
+        //Assert
+        assertEquals(distance, 2);
+    }
+
+    @Test
+    public void calculateDistanceOfNonAchievableVerticesException() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException {
+        //Arrange
+        newGraphSetup02();
+        //Assert
+        assertThrows(VertexNotAchievableException.class, () -> graphAdjacencyList.calculateDistance(4, 2));
+    }
+
+    @Test
+    public void calculateDistanceOnNonGuidedGraphUsingBfs() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException, VertexNotAchievableException {
+        //Arrange
+        newGraphSetup03();
+        //Art
+        int distance = graphAdjacencyList.calculateDistance(3, 2);
+        //Assert
+        assertEquals(distance, 3);
+    }
+
+    //dijkstra()
+
+    @Test
+    public void dijkstraOnDirectedGraph() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException, VertexNotAchievableException {
+        //Arrange
+        newGraphSetup02();
+        //Art
+        ArrayList<Pair<Integer, Integer>> result = graphAdjacencyList.dijkstra(6, 7);
+        int[] validation = {6, 5, 5, 3, 3, 7};
+        //Assert
+        int index = 0;
+        for (Pair<Integer, Integer> integerIntegerPair : result) {
+            assertEquals((int) integerIntegerPair.getKey(), validation[index]);
+            assertEquals((int) integerIntegerPair.getValue(), validation[index + 1]);
+            index += 2;
+        }
+    }
+
+    //prim()
+
     @Test
     public void createMinimumSpanTree() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException {
+        //Arrange
         newGraphSetup02();
+        //Art
+        ArrayList<Pair<Integer, Integer>> mst = graphAdjacencyList.prim(0);
+        //Assert
+        assertEquals(8, mst.size());
 
-        try {
-            ArrayList<Pair<Integer, Integer>> mst = graphAdjacencyList.prim(0);
-
-            assertEquals(8, mst.size());
-
-            for (Pair<Integer, Integer> p : mst) {
-                graphAdjacencyList.searchEdge(p.getKey(), p.getValue(), "v1");
-//                System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
-            }
-
-        } catch (VertexNotAchievableException e) {
-            fail();
+        for (Pair<Integer, Integer> p : mst) {
+            graphAdjacencyList.searchEdge(p.getKey(), p.getValue(), "v1");
+            //System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
         }
     }
 }

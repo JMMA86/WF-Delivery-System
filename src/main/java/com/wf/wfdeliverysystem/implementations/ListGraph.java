@@ -156,6 +156,17 @@ public class ListGraph<T> implements IGraph<T> {
     }
 
     @Override
+    public int calculateDistance(T start, T end) throws VertexNotFoundException, VertexNotAchievableException {
+        if (searchVertexIndex(start) == -1 || searchVertexIndex(end) == -1) throw new VertexNotFoundException("Error. One vertex not found.");
+        bfs(start);
+        if (list.get(searchVertexIndex(end)).getColor() == Color.WHITE) {
+            throw new VertexNotAchievableException("Error. Vertex not achievable.");
+        } else {
+            return list.get(searchVertexIndex(end)).getDistance();
+        }
+    }
+
+    @Override
     public void bfs(T value) throws VertexNotFoundException {
         ListVertex<T> root;
         try {
@@ -188,7 +199,7 @@ public class ListGraph<T> implements IGraph<T> {
     }
 
     @Override
-    public ArrayList<T> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
+    public ArrayList<Pair<T, T>> dijkstra(T startVertex, T endVertex) throws VertexNotFoundException, VertexNotAchievableException {
         //Validations
         if (searchVertexIndex(startVertex) == -1 || searchVertexIndex(endVertex) == -1) {
             throw new VertexNotFoundException("Error. One vertex not found.");
@@ -244,16 +255,15 @@ public class ListGraph<T> implements IGraph<T> {
             minEdge = null;
             vertexObj = vertexFather;
         }
-        ArrayList<T> values = new ArrayList<>();
-        values.add(list.get(startVertexIndex).getValue());
+        ArrayList<Pair<T, T>> values = new ArrayList<>();
         for (ListEdge<T> tListEdge : chain) {
-            values.add(tListEdge.getRightVertex().getValue());
+            values.add(new Pair<>(tListEdge.getLeftVertex().getValue(), tListEdge.getRightVertex().getValue()));
         }
         return values;
     }
 
     @Override
-    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, VertexNotAchievableException {
+    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException {
         int originPos = searchVertexIndex(value);
         if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
         ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
