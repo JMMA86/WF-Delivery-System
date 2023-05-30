@@ -78,30 +78,19 @@ public class InitController {
     private ArrayList<House> houses;
     private ArrayList<Pair<Point2D, Point2D>> edges;
     private DeliveryCycle cycle;
+    private final int x_dim = 16, y_dim = 9;
 
+    public Stage stage;
     // Init, refresh and close
 
     public void initialize() {
-        // resizing
-        Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
-        canvas.setHeight(bounds.getHeight() * 0.65);
-        canvas.setWidth(bounds.getWidth() - 48);
-        int x_dim = 16, y_dim = 9;
-        if( canvas.getWidth()/ (x_dim-1) > canvas.getHeight()/ (y_dim-1) ) {
-            diff = Math.floor(canvas.getHeight()/ (y_dim-1));
-            canvas.setWidth(diff*(x_dim-1));
-        } else {
-            diff = Math.floor(canvas.getWidth()/ (x_dim-1));
-            canvas.setHeight(diff*(y_dim-1));
-        }
-        double h_padding = bounds.getWidth()*0.1, v_padding = bounds.getHeight()*0.1;
-        layout.setPadding( new Insets( v_padding, h_padding, v_padding, h_padding ));
-        wfTitleLbl.setFont(Font.font( wfTitleLbl.getFont().toString(), FontWeight.BOLD, bounds.getHeight()*0.01 + 18));
+
+        takenPoints = new boolean[x_dim][y_dim];
 
         // init
         houses = new ArrayList<>();
         context = canvas.getGraphicsContext2D();
-        takenPoints = new boolean[x_dim][y_dim];
+
         edges = new ArrayList<>();
         cycle = new DeliveryCycle(new Point2D(takenPoints.length, takenPoints[0].length), pictures[2]);
         rnd = new Random();
@@ -127,6 +116,25 @@ public class InitController {
     }
 
     private void paint() {
+        // resizing
+
+        // Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
+        Rectangle2D bounds = new Rectangle2D(0, 0 , stage.getWidth(), stage.getHeight());
+        canvas.setHeight(bounds.getHeight() * 0.65);
+        canvas.setWidth(bounds.getWidth() - 48);
+
+        if( canvas.getWidth()/ (x_dim-1) > canvas.getHeight()/ (y_dim-1) ) {
+            diff = Math.floor(canvas.getHeight()/ (y_dim-1));
+            canvas.setWidth(diff*(x_dim-1));
+        } else {
+            diff = Math.floor(canvas.getWidth()/ (x_dim-1));
+            canvas.setHeight(diff*(y_dim-1));
+        }
+        double h_padding = bounds.getWidth()*0.1, v_padding = bounds.getHeight()*0.1;
+        layout.setPadding( new Insets( v_padding, h_padding, v_padding, h_padding ));
+        wfTitleLbl.setFont(Font.font( wfTitleLbl.getFont().toString(), FontWeight.BOLD, bounds.getHeight()*0.01 + 18));
+
+        // painting
         context.setFill(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
         context.setFill(Color.GREEN);
         context.fillRoundRect(0, 0, canvas.getWidth(), canvas.getHeight(), diff/2, diff/2);
@@ -172,6 +180,14 @@ public class InitController {
     public void setRunning(boolean running) {
         this.running = running;
     }
+    public Stage getStage() {
+        return stage;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
 
     // Drawing
 
