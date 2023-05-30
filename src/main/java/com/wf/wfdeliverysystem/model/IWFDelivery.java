@@ -1,5 +1,7 @@
 package com.wf.wfdeliverysystem.model;
 
+import com.wf.wfdeliverysystem.exceptions.VertexNotAchievableException;
+import com.wf.wfdeliverysystem.exceptions.VertexNotFoundException;
 import javafx.util.Pair;
 import java.util.ArrayList;
 
@@ -18,7 +20,7 @@ public interface IWFDelivery {
      * @param h2 The target house
      * @return A list of the houses to be visited in order.
      */
-    ArrayList<House> calculateMinimumPath(House h1, House h2);
+    ArrayList<Pair<House, House>> calculateMinimumPath(House h1, House h2) throws VertexNotAchievableException, VertexNotFoundException;
 
     /**
      * @param h0 The house from which the tour starts

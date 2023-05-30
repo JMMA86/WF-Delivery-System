@@ -42,8 +42,12 @@ public class Manager implements IWFDelivery {
     }
 
     @Override
-    public ArrayList<House> calculateMinimumPath(House h1, House h2) {
-        return null;
+    public ArrayList<Pair<House, House>> calculateMinimumPath(House h1, House h2) throws VertexNotAchievableException, VertexNotFoundException {
+        if (isMatrix) {
+            return matrix.dijkstra(h1, h2);
+        } else {
+            return list.dijkstra(h1, h2);
+        }
     }
 
     @Override
