@@ -305,7 +305,7 @@ public class TestListIGraph {
         //Art
         ArrayList<Pair<Integer, Integer>> mst = graphAdjacencyList.prim(0);
         //Assert
-        assertEquals(8, mst.size());
+        assertEquals(7, mst.size());
 
         for (Pair<Integer, Integer> p : mst) {
             graphAdjacencyList.searchEdge(p.getKey(), p.getValue(), "v1");

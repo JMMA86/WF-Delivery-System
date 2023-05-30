@@ -163,6 +163,7 @@ public class TestMatrixGraph {
             matrixGraph.addEdge("c", "b", "1", 3);
             matrixGraph.addEdge("c", "e", "1", 3);
             matrixGraph.addEdge("b", "d", "1", 2);
+            matrixGraph.addEdge("e", "a", "1", 1);
             matrixGraph.addEdge("d", "e", "1", 6);
 
             ArrayList<Pair<String, String>> mst = matrixGraph.prim("c");

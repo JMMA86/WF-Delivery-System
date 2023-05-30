@@ -288,6 +288,7 @@ public class ListGraph<T> implements IGraph<T> {
                     ad.getRightVertex().setDistance(ad.getWeight());
                     toVisit.add(ad.getRightVertex());
                     predecessors.add(new Pair<>(temp.getValue(), ad.getRightVertex().getValue()));
+                    ad.getRightVertex().setColor(Color.BLACK);
                 }
             }
 

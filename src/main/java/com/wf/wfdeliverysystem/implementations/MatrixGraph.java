@@ -291,6 +291,7 @@ public class MatrixGraph<T> implements IGraph<T> {
                         vertices[i].setDistance(matrix[temp][i]);
                         toVisit.add(vertices[i]);
                         predecessors.add(new Pair<>(vertices[temp].getValue(), vertices[i].getValue()));
+                        vertices[i].setColor(Color.BLACK);
                     }
                 }
             }
