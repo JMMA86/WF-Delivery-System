@@ -1,3 +1,4 @@
+import com.wf.wfdeliverysystem.implementations.IGraph;
 import com.wf.wfdeliverysystem.implementations.ListGraph;
 import com.wf.wfdeliverysystem.exceptions.*;
 import javafx.util.Pair;
@@ -7,7 +8,7 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 
 public class TestListIGraph {
-    private ListGraph<Integer> graphAdjacencyList;
+    private IGraph<Integer> graphAdjacencyList;
 
     void newGraphSetup01() {
         /*
