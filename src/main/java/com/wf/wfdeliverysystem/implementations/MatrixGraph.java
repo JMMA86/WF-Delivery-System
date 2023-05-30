@@ -299,4 +299,24 @@ public class MatrixGraph<T> implements IGraph<T> {
 
         return predecessors;
     }
+
+
+    @Override
+    public String toString() {
+        StringBuilder ans = new StringBuilder();
+        int limit = 8;
+        ans.append(String.format("%-" + limit +  "s", ""));
+        for(MatrixVertex<T> v : vertices) {
+            ans.append(String.format("%-" + limit +  "s", v.getValue().toString()));
+        }
+        for(int i=0; i<matrix.length; i++ ) {
+            ans.append("\n").append( String.format("%-" + limit +  "s", vertices[i].getValue().toString()));
+            for(int element : matrix[i]) {
+                String elementStr = String.format("[ %d ]", element);
+                ans.append(String.format("%-" + limit +  "s", elementStr));
+            }
+        }
+
+        return ans.toString();
+    }
 }

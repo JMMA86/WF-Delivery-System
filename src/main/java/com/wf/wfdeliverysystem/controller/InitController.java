@@ -6,10 +6,12 @@ import com.wf.wfdeliverysystem.model.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -106,6 +108,7 @@ public class InitController {
         generateVertices();
 
         hqTG.selectedToggleProperty().addListener( changeListener -> {
+            cycle.resetMovement();
             if( hq1TB.isSelected() ) {
                 selectedHQ = headquarters.get(0);
             } else if(h12TB.isSelected()) {
@@ -114,6 +117,11 @@ public class InitController {
                 selectedHQ = headquarters.get(2);
             }
         } );
+
+        typeTG.selectedToggleProperty().addListener( changeListener -> {
+            cycle.resetMovement();
+            Launcher.getManager().setMatrix(matrixTB.isSelected());
+        });
 
         // paint
         this.running = true;
@@ -171,7 +179,7 @@ public class InitController {
                     rnd.nextInt(1, takenPoints[0].length - 1)
             );
             takenPoints[(int) curr.getX()][(int) curr.getY()] = true;
-            House currElement = new House(curr, pictures[0], "aa");
+            House currElement = new House(curr, pictures[0], String.format("%d,%d", (int)curr.getX(), (int)curr.getY()));
             Launcher.getManager().getList().addVertex(currElement);
             Launcher.getManager().getMatrix().addVertex(currElement);
             houses.add( currElement);
@@ -191,7 +199,7 @@ public class InitController {
                 } else {
                     takenPoints[nx][ny] = true;
                     Point2D next = new Point2D(nx, ny);
-                    House newElement = new House(next, pictures[1], "aa");
+                    House newElement = new House(next, pictures[1],  String.format("%d,%d", (int)next.getX(), (int)next.getY()));
                     houses.add( newElement );
                     edges.add(new Pair<>(currElement.getCoords(), newElement.getCoords()));
                     Launcher.getManager().getList().addVertex(newElement);
@@ -256,6 +264,7 @@ public class InitController {
         }
     }
     public void onCheckDelivery(ActionEvent actionEvent) throws VertexNotAchievableException, VertexNotFoundException {
+        System.out.println(Launcher.getManager().isMatrix());
         if(selectedHouse == null) {
             Launcher.showAlert(Alert.AlertType.ERROR, "Unselected house", "First select a house and try again.");
             return;
@@ -270,13 +279,14 @@ public class InitController {
 
     public void onGenerateTour(ActionEvent actionEvent) throws VertexNotFoundException {
         selectedHouse = null;
-        Launcher.getManager().setMatrix(true);
         ArrayList<Pair<Element, Element>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
         cycle.setTour(edges);
     }
 
     public void onViewGraphs(ActionEvent actionEvent) {
-
+        Pair<FXMLLoader, Stage> handlers = Launcher.renderView("graph-representations.fxml", 1280, 480);
+        GraphRepresentationController controller = handlers.getKey().getController();
+        controller.initialize(Launcher.getManager().getList().toString(), Launcher.getManager().getMatrix().toString());
     }
 
     public void onExit(ActionEvent actionEvent) {

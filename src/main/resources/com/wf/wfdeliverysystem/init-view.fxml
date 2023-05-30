@@ -42,17 +42,21 @@
             <font>
                <Font size="14.0" />
             </font></Label>
-            <RadioButton fx:id="matrixTB" selected="true" text="Matrix">
-            <toggleGroup>
-               <ToggleGroup fx:id="typeTG" />
-            </toggleGroup>
-            <font>
-               <Font size="14.0" />
-            </font></RadioButton>
-            <RadioButton fx:id="listTB" text="List" toggleGroup="$typeTG">
-            <font>
-               <Font size="14.0" />
-            </font></RadioButton>
+
+
+            <RadioButton fx:id="listTB" text="List" selected="true">
+                <toggleGroup>
+                   <ToggleGroup fx:id="typeTG" />
+                </toggleGroup>
+                <font>
+                    <Font size="14.0" />
+                </font>
+            </RadioButton>
+            <RadioButton fx:id="matrixTB" text="Matrix" toggleGroup="$typeTG">
+                <font>
+                   <Font size="14.0" />
+                </font>
+            </RadioButton>
         </HBox>
     </HBox>
 

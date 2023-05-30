@@ -21,9 +21,7 @@ public class House extends Element implements Comparable<House> {
 
     @Override
     public String toString() {
-        return "House{" +
-                "id='" + id + '\'' +
-                '}';
+        return String.format("(%s)", id);
     }
 
     @Override
