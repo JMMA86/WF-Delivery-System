@@ -22,6 +22,7 @@ public class Manager implements IWFDelivery {
         matrix = new MatrixGraph<>(false, vertices);
     }
 
+    //Using BFS algorithm
     @Override
     public boolean checkPathBetweenHouses(House h1, House h2) {
         if (isMatrix) {
@@ -41,6 +42,7 @@ public class Manager implements IWFDelivery {
         }
     }
 
+    //Using Dijkstra algorithm
     @Override
     public ArrayList<Pair<House, House>> calculateMinimumPath(House h1, House h2) throws VertexNotAchievableException, VertexNotFoundException {
         if (isMatrix) {
@@ -50,6 +52,7 @@ public class Manager implements IWFDelivery {
         }
     }
 
+    //Using Prim algorithm
     @Override
     public ArrayList<Pair<House, House>> generateDeliveryTour(House h0) throws VertexNotFoundException {
         if (isMatrix) {
