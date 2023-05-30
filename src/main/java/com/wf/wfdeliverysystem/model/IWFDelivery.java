@@ -24,5 +24,5 @@ public interface IWFDelivery {
      * @param h0 The house from which the tour starts
      * @return A list of house pairs, which represents the edges of the minimum spanning tree, in order.
      */
-    ArrayList<Pair<House,House>>  generateDeliveryTour(House h0);
+    ArrayList<Pair<House,House>> generateDeliveryTour(House h0);
 }
