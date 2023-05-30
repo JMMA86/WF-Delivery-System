@@ -51,8 +51,12 @@ public class Manager implements IWFDelivery {
     }
 
     @Override
-    public ArrayList<Pair<House, House>> generateDeliveryTour(House h0) {
-        return null;
+    public ArrayList<Pair<House, House>> generateDeliveryTour(House h0) throws VertexNotFoundException {
+        if (isMatrix) {
+            return matrix.prim(h0);
+        } else {
+            return list.prim(h0);
+        }
     }
 
     public boolean isMatrix() {
