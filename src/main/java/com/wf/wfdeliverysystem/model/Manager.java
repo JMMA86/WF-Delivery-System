@@ -25,6 +25,14 @@ public class Manager implements IWFDelivery {
         return null;
     }
 
+    public boolean isMatrix() {
+        return this.isMatrix;
+    }
+
+    public void setMatrix(boolean matrix) {
+        this.isMatrix = matrix;
+    }
+
     static public Manager getInstance() {
         return manager;
     }
