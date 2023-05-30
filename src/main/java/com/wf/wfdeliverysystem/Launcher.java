@@ -19,7 +19,7 @@ public class Launcher extends Application {
 
     public static void showAlert(Alert.AlertType type, String title, String msg) {
         Alert alert = new Alert(type);
-        alert.setTitle(title);
+        alert.setHeaderText(title);
         alert.setContentText(msg);
         alert.showAndWait();
     }

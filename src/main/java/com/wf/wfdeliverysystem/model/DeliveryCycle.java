@@ -7,9 +7,7 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class DeliveryCycle extends Element {
@@ -18,6 +16,7 @@ public class DeliveryCycle extends Element {
 
     private int currentTour;
     private double SPEED = 0.05;
+    private Point2D defaultPosition;
 
     ArrayList<Pair<Point2D, Point2D>> tour;
 
@@ -27,24 +26,27 @@ public class DeliveryCycle extends Element {
         this.movement = new Point2D(0, 0);
         this.currentTour = -1;
         this.tour = new ArrayList<>();
+        defaultPosition = coords;
     }
 
     public ArrayList<Pair<Point2D, Point2D>> getTour() {
         return tour;
     }
 
-    public void setTour(ArrayList<Pair<Point2D, Point2D>> points) {
-        for(int i=0; i<points.size()-1; i++) {
-            int j = i;
-            while (j >= 0 && !points.get(i + 1).getKey().equals(points.get(j).getValue())) {
-                i++;
-                points.add(i, new Pair<>(points.get(j).getValue(), points.get(j).getKey()));
-                j--;
-            }
-        }
+    public void setTour(ArrayList<Pair<Element, Element>> edges) {
+        ArrayList<Pair<Point2D, Point2D>> points = parseToPoints(edges);
+        // TODO: fix the tour so that it goes through the tree in depth.
         this.tour = points;
         currentTour = 0;
         moveThrough(currentTour);
+    }
+
+    private ArrayList<Pair<Point2D, Point2D>> parseToPoints(ArrayList<Pair<Element, Element>> edges) {
+        ArrayList<Pair<Point2D, Point2D>> points = new ArrayList<>();
+        for(Pair<Element, Element> p : edges) {
+            points.add( new Pair<>( p.getKey().getCoords(), p.getValue().getCoords()) );
+        }
+        return points;
     }
 
     public void move() {
@@ -79,6 +81,10 @@ public class DeliveryCycle extends Element {
         return new Point2D(dx, dy);
     }
 
+    public void resetMovement() {
+        setCoords(defaultPosition);
+        setMoving(false);
+    }
 
 
     public boolean isMoving() {

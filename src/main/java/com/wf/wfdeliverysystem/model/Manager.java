@@ -14,8 +14,17 @@ public class Manager implements IWFDelivery {
     //False = listGraph
     //True = matrixGraph
     private boolean isMatrix;
-    private final IGraph<House> list;
-    private final IGraph<House> matrix;
+    private final IGraph<Element> list;
+    private final IGraph<Element> matrix;
+
+    public IGraph<Element> getList() {
+        return list;
+    }
+
+    public IGraph<Element> getMatrix() {
+        return matrix;
+    }
+
 
     public Manager(int vertices) {
         list = new ListGraph<>(false, false, false);
@@ -24,7 +33,7 @@ public class Manager implements IWFDelivery {
 
     //Using BFS algorithm
     @Override
-    public boolean checkPathBetweenHouses(House h1, House h2) {
+    public boolean checkPathBetweenHouses(Element h1, Element h2) {
         if (isMatrix) {
             try {
                 matrix.calculateDistance(h1, h2);
@@ -44,7 +53,7 @@ public class Manager implements IWFDelivery {
 
     //Using Dijkstra algorithm
     @Override
-    public ArrayList<Pair<House, House>> calculateMinimumPath(House h1, House h2) throws VertexNotAchievableException, VertexNotFoundException {
+    public ArrayList<Pair<Element, Element>> calculateMinimumPath(Element h1, Element h2) throws VertexNotAchievableException, VertexNotFoundException {
         if (isMatrix) {
             return matrix.dijkstra(h1, h2);
         } else {
@@ -54,7 +63,7 @@ public class Manager implements IWFDelivery {
 
     //Using Prim algorithm
     @Override
-    public ArrayList<Pair<House, House>> generateDeliveryTour(House h0) throws VertexNotFoundException {
+    public ArrayList<Pair<Element, Element>> generateDeliveryTour(Element h0) throws VertexNotFoundException {
         if (isMatrix) {
             return matrix.prim(h0);
         } else {
