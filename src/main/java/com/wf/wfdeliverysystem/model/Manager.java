@@ -17,7 +17,7 @@ public class Manager implements IWFDelivery {
     private final IGraph<House> list;
     private final IGraph<House> matrix;
 
-    private Manager(int vertices) {
+    public Manager(int vertices) {
         list = new ListGraph<>(false, false, false);
         matrix = new MatrixGraph<>(false, vertices);
     }

@@ -1,5 +1,6 @@
 package com.wf.wfdeliverysystem.controller;
 
+import com.wf.wfdeliverysystem.Launcher;
 import com.wf.wfdeliverysystem.model.*;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -10,10 +11,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -23,8 +21,8 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Pair;
-import java.util.ArrayList;
-import java.util.Random;
+
+import java.util.*;
 
 public class InitController {
 
@@ -63,23 +61,28 @@ public class InitController {
     // Structures and constants for graphical purposes
 
     private GraphicsContext context;
+    private final int BACKGROUND =0, UNSELECTED = 1, SELECTED_HOUSE = 2, SELECTED_HQ = 3;
     private final Color[] COLOR_PALETTE = new Color[]{
-            Color.rgb(128, 128, 64),
-            Color.RED
+            Color.web("#5dab54"), // background
+            Color.web("#4293bd"), // unselected
+            Color.web("#5748b7"), // selected house
+            Color.web("#de213e"), // selected hq
     };
+    String imgDir = System.getProperty("user.dir") + "/src/main/resources/img/";
     private final Image[] pictures = new Image[]{
-            new Image(System.getProperty("user.dir") + "/src/main/resources/img/D001.png"),
-            new Image(System.getProperty("user.dir") + "/src/main/resources/img/H001.png"),
-            new Image(System.getProperty("user.dir") + "/src/main/resources/img/HQ001.png"),
+            new Image(imgDir + "D001.png"),
+            new Image(imgDir + "H001.png"),
+            new Image(imgDir + "HQ001.png"),
     };
     private Random rnd;
     private double diff;
     private boolean[][] takenPoints;
     private ArrayList<House> houses;
+    private ArrayList<House> headquarters;
+    House selectedHouse, selectedHQ;
     private ArrayList<Pair<Point2D, Point2D>> edges;
     private DeliveryCycle cycle;
     private final int x_dim = 16, y_dim = 9;
-
     public Stage stage;
     // Init, refresh and close
 
@@ -89,6 +92,7 @@ public class InitController {
 
         // init
         houses = new ArrayList<>();
+        headquarters = new ArrayList<>();
         context = canvas.getGraphicsContext2D();
 
         edges = new ArrayList<>();
@@ -98,6 +102,16 @@ public class InitController {
         // System.out.println(diff);
 
         generateVertices();
+
+        hqTG.selectedToggleProperty().addListener( changeListener -> {
+            if( hq1TB.isSelected() ) {
+                selectedHQ = headquarters.get(0);
+            } else if(h12TB.isSelected()) {
+                selectedHQ = headquarters.get(1);
+            } else {
+                selectedHQ = headquarters.get(2);
+            }
+        } );
 
         // paint
         this.running = true;
@@ -136,11 +150,13 @@ public class InitController {
 
         // painting
         context.setFill(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
-        context.setFill(Color.GREEN);
+        context.setFill(COLOR_PALETTE[BACKGROUND]);
         context.fillRoundRect(0, 0, canvas.getWidth(), canvas.getHeight(), diff/2, diff/2);
         for(Pair<Point2D, Point2D> e : edges) drawLine(e.getKey(), e.getValue());
-        for(House h : houses) h.drawCircle(COLOR_PALETTE[0], diff, context);
-        cycle.drawCircle(COLOR_PALETTE[0], diff, context);
+        for(House h : houses) h.drawCircle(COLOR_PALETTE[UNSELECTED], diff, context);
+        if(selectedHouse != null) selectedHouse.drawCircle(COLOR_PALETTE[SELECTED_HOUSE], diff, context);
+        if(selectedHQ != null) selectedHQ.drawCircle(COLOR_PALETTE[SELECTED_HQ], diff, context);
+        cycle.drawCircle(COLOR_PALETTE[UNSELECTED], diff, context);
         cycle.move();
     }
 
@@ -152,6 +168,8 @@ public class InitController {
             );
             takenPoints[(int) curr.getX()][(int) curr.getY()] = true;
             houses.add( new House(curr, pictures[0], "aa"));
+            headquarters.add(houses.get(houses.size()-1));
+            if(selectedHQ == null) selectedHQ = headquarters.get(0);
             // repeat until the number of vertices is reached
             int verticesPerTree = 25;
             while (houses.size() % verticesPerTree != 0) {
@@ -209,15 +227,34 @@ public class InitController {
 
     // Requirement Buttons
     public void onVertexSelected(MouseEvent mouseEvent) {
-        generateVertices();
+        double currX = mouseEvent.getX()/diff, currY = mouseEvent.getY()/diff;
+        Point2D closest = new Point2D((int)Math.round(currX), (int)Math.round(currY));
+
+        // circunference equation (x-h)^2 + (y-k)^2 = r^2
+
+        boolean isInsideCircle = Math.pow(currX*diff - closest.getX()*diff,2) + Math.pow(currY*diff - closest.getY()*diff, 2) <= Math.pow(diff/4,2);
+
+        if(isInsideCircle && takenPoints[(int)closest.getX()][(int)closest.getY()]) {
+            try {
+                selectedHouse = houses.stream().filter( h -> h.getCoords().equals(closest) && h.getPicture() != pictures[0]).findFirst().get();
+            } catch(NoSuchElementException e) {
+                e.getStackTrace();
+            }
+        }
     }
     public void onCheckDelivery(ActionEvent actionEvent) {
+        if(selectedHouse == null) {
+            Launcher.showAlert(Alert.AlertType.ERROR, "Unselected house", "First select a house and try again.");
+            return;
+        }
     }
 
     public void onGenerateTour(ActionEvent actionEvent) {
+        selectedHouse = null;
     }
 
     public void onViewGraphs(ActionEvent actionEvent) {
+
     }
 
     public void onExit(ActionEvent actionEvent) {

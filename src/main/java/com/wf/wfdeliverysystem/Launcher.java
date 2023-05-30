@@ -5,16 +5,25 @@ import com.wf.wfdeliverysystem.model.Manager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class Launcher extends Application {
-    private static final Manager manager = new Manager();
+    public static final Manager manager = new Manager(75);
 
     public static Manager getManager() {
         return manager;
     }
+
+    public static void showAlert(Alert.AlertType type, String title, String msg) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setContentText(msg);
+        alert.showAndWait();
+    }
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Launcher.class.getResource("init-view.fxml"));
