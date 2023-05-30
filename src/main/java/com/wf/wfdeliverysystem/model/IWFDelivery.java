@@ -3,7 +3,7 @@ package com.wf.wfdeliverysystem.model;
 import javafx.util.Pair;
 import java.util.ArrayList;
 
-public interface IWFDelivery<V> {
+public interface IWFDelivery {
     /**
      * Checks if two houses are connected directly or with intermediates
      * @param h1 The initial house
