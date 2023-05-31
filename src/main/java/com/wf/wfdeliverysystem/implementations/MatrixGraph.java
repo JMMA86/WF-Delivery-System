@@ -312,7 +312,7 @@ public class MatrixGraph<T> implements IGraph<T> {
         for(int i=0; i<matrix.length; i++ ) {
             ans.append("\n").append( String.format("%-" + limit +  "s", vertices[i].getValue().toString()));
             for(int element : matrix[i]) {
-                String elementStr = String.format("[ %d ]", element);
+                String elementStr = String.format("[ %2d ]", element);
                 ans.append(String.format("%-" + limit +  "s", elementStr));
             }
         }

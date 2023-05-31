@@ -111,10 +111,13 @@ public class InitController {
             cycle.resetMovement();
             if( hq1TB.isSelected() ) {
                 selectedHQ = headquarters.get(0);
+                cycle.setId(0);
             } else if(h12TB.isSelected()) {
                 selectedHQ = headquarters.get(1);
+                cycle.setId(1);
             } else {
                 selectedHQ = headquarters.get(2);
+                cycle.setId(2);
             }
         } );
 
@@ -203,9 +206,27 @@ public class InitController {
                     houses.add( newElement );
                     edges.add(new Pair<>(currElement.getCoords(), newElement.getCoords()));
                     Launcher.getManager().getList().addVertex(newElement);
-                    Launcher.getManager().getList().addEdge(currElement, newElement, ""+houses.size(), 5);
+                    int weight = rnd.nextInt(100);
+                    Launcher.getManager().getList().addEdge(currElement, newElement, ""+houses.size(), weight);
                     Launcher.getManager().getMatrix().addVertex(newElement);
-                    Launcher.getManager().getMatrix().addEdge(currElement, newElement, ""+houses.size(), 5);
+                    Launcher.getManager().getMatrix().addEdge(currElement, newElement, ""+houses.size(), weight);
+                }
+            }
+            int edgeCnt = 0;
+            while(edgeCnt < 7) {
+                House h1 = houses.get(rnd.nextInt(verticesPerTree *i, houses.size()));
+                House h2 = houses.get(rnd.nextInt(verticesPerTree *i, houses.size()));
+                if(Math.abs(h1.getCoords().getY() - h2.getCoords().getY()) > 3 || Math.abs(h1.getCoords().getX()-h2.getCoords().getX()) > 3) {
+                    continue;
+                }
+                try {
+                    int weight = rnd.nextInt(100);
+                    Launcher.getManager().getList().addEdge(h1, h2, ""+houses.size(), weight);
+                    Launcher.getManager().getMatrix().addEdge(h1, h2, ""+houses.size(), weight);
+                    edges.add( new Pair<>(h1.getCoords(), h2.getCoords())  );
+                    edgeCnt++;
+                } catch ( LoopsNotAllowedException | MultipleEdgesNotAllowedException e ) {
+                    e.getStackTrace();
                 }
             }
         }
@@ -232,16 +253,16 @@ public class InitController {
     private void drawLine(Point2D p1, Point2D p2) {
         // border
         context.setStroke(Color.BLACK);
-        context.setLineWidth(diff/3.5);
+        context.setLineWidth(diff/4);
         context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
         // gray street
         context.setStroke(Color.GRAY);
-        context.setLineWidth(diff/5);
+        context.setLineWidth(diff/6);
         context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
         // white dashes
         context.setStroke(Color.WHITE);
-        context.setLineWidth(diff/33);
-        context.setLineDashes(diff/7);
+        context.setLineWidth(diff/40);
+        context.setLineDashes(diff/9);
         context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
     }
 
@@ -274,13 +295,14 @@ public class InitController {
             return;
         }
         ArrayList<Pair<Element, Element>> edges = Launcher.getManager().calculateMinimumPath(selectedHQ, selectedHouse);
-        cycle.setTour(edges);
+        cycle.setTour(edges, false);
     }
 
-    public void onGenerateTour(ActionEvent actionEvent) throws VertexNotFoundException {
+    public void onGenerateTour(ActionEvent actionEvent) throws VertexNotFoundException, VertexNotAchievableException {
         selectedHouse = null;
         ArrayList<Pair<Element, Element>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
-        cycle.setTour(edges);
+        edges.removeIf(e -> !Launcher.getManager().checkPathBetweenHouses( selectedHQ, e.getKey() ) );
+        cycle.setTour(edges, true);
     }
 
     public void onViewGraphs(ActionEvent actionEvent) {
