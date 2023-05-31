@@ -78,10 +78,10 @@ public class InitController {
     private ArrayList<House> houses;
     House selectedHouse, selectedHQ;
     private ArrayList<Street> streets;
-    private final int x_dim = 15, y_dim = 7;
+    private final int x_dim = 17, y_dim = 9;
     public Stage stage;
     DeliveryCycle cycle;
-    private ArrayList<Pair<House, House>> path;
+    private ArrayList<Pair<Point2D, Point2D>> path;
     Affine affine;
     double zoomLevel = 1, preX, preY;
 
@@ -104,8 +104,8 @@ public class InitController {
         path = new ArrayList<>();
 
         // System.out.println(diff);
-        generateVertices();
 
+        generateVertices();
 
         typeTG.selectedToggleProperty().addListener( changeListener -> {
             resetMovements();
@@ -154,7 +154,7 @@ public class InitController {
         context.setTransform(affine);
         // Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         Rectangle2D bounds = new Rectangle2D(0, 0 , stage.getWidth(), stage.getHeight());
-        canvas.setHeight(bounds.getHeight() * 0.8);
+        canvas.setHeight(bounds.getHeight() * 0.7);
         canvas.setWidth(bounds.getWidth() * 0.9);
 
         if( canvas.getWidth()/ (x_dim-1) > canvas.getHeight()/ (y_dim-1) ) {
@@ -175,17 +175,33 @@ public class InitController {
         context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
 
         for(Street s : streets) {
-            drawLine( s.getP1(), s.getP2(), diff, Color.GRAY , 0.25);
+            drawLine( s.getP1(), s.getP2(), Color.GRAY , 0.75);
         }
 
-        for(Pair<House, House> s : path) {
-            drawLine( s.getKey().getCoords(), s.getValue().getCoords(), diff, Color.TURQUOISE, 0.25);
+        for(Pair<Point2D, Point2D> s : path) {
+            drawLine( s.getKey(), s.getValue(), Color.TURQUOISE, 0.75);
         }
 
-        for(Character h : houses) h.draw(diff, 0.4);
+        for(Character h : houses) h.draw(diff, 0.75);
 
-        cycle.draw(diff, 0.4);
+        for(Street s : streets) {
+            fillWeights(s.getP1(), s.getP2(), 0.75);
+        }
+
+        cycle.draw(diff, 0.75);
         cycle.move();
+
+        if(cycle.getCoords().getX() < takenPoints.length) {
+            try {
+                House closest = houses.stream().filter( h ->  Math.round(cycle.getCoords().getX()) == h.getCoords().getX()
+                    && Math.round(cycle.getCoords().getY()) == h.getCoords().getY()).findFirst().get();
+                if( Math.sqrt( Math.pow(closest.getCoords().getX() - cycle.getCoords().getX(), 2) + Math.pow(closest.getCoords().getY() - cycle.getCoords().getY(), 2)) < 0.1 ) {
+                    closest.setState(1);
+                }
+            } catch (NoSuchElementException e) {
+                e.printStackTrace();
+            }
+        }
 
         // System.out.println(selectedHQ.getCoords());
     }
@@ -206,7 +222,7 @@ public class InitController {
                 selectedHQ.setState(1);
             }
             // repeat until the number of vertices is reached
-            int verticesPerTree = 17;
+            int verticesPerTree = 30;
             while (houses.size() % verticesPerTree != 0) {
                 // generate a random point one cell separated from the current
                 int nx = (int) currElement.getCoords().getX() + rnd.nextInt(-1, 2), ny = (int) currElement.getCoords().getY() + rnd.nextInt(-1, 2);
@@ -220,9 +236,9 @@ public class InitController {
                     takenPoints[nx][ny] = true;
                     Point2D next = new Point2D(nx, ny);
                     House newElement = new House(diff, context, next, pictures[1],  String.format("%d,%d", (int)next.getX(), (int)next.getY()));
-                    houses.add( newElement );
                     int weight = rnd.nextInt(1, 100);
                     streets.add( new Street(context, currElement.getCoords(), newElement.getCoords(), weight) );
+                    houses.add( newElement );
                     Launcher.getManager().getList().addVertex(newElement);
                     Launcher.getManager().getMatrix().addVertex(newElement);
                     Launcher.getManager().getList().addEdge(currElement, newElement, ""+houses.size(), weight);
@@ -230,14 +246,14 @@ public class InitController {
                 }
             }
             int edgeCnt = 0;
-            while(edgeCnt < 15) {
+            while(edgeCnt < 30) {
                 House h1 = houses.get(rnd.nextInt(verticesPerTree *i, houses.size()));
                 House h2 = houses.get(rnd.nextInt(verticesPerTree *i, houses.size()));
-                if(Math.abs(h1.getCoords().getY() - h2.getCoords().getY()) > 3 || Math.abs(h1.getCoords().getX()-h2.getCoords().getX()) > 3) {
+                if(Math.abs(h1.getCoords().getY() - h2.getCoords().getY()) > 1 || Math.abs(h1.getCoords().getX()-h2.getCoords().getX()) > 1) {
                     continue;
                 }
                 try {
-                    int weight = rnd.nextInt(100);
+                    int weight = rnd.nextInt(1, 100);
                     Launcher.getManager().getList().addEdge(h1, h2, ""+houses.size(), weight);
                     Launcher.getManager().getMatrix().addEdge(h1, h2, ""+houses.size(), weight);
                     streets.add( new Street(context, h1.getCoords(), h2.getCoords(), weight ) );
@@ -264,50 +280,31 @@ public class InitController {
         this.stage = stage;
     }
 
+
     // Drawing
 
-    public void drawLine(Point2D p1, Point2D p2, double size, Color color, double scale) {
-        double p1_x = p1.getX()*size, p1_y = p1.getY()*size, p2_x = p2.getX()*size, p2_y = p2.getY()*size;
-
+    private void drawLine(Point2D p1, Point2D p2, Color color, double scale) {
         // border
-        context.beginPath();
-        context.moveTo(p1_x, p1_y);
-        // calculate curves
-        double m = (p2_y-p1_y)/(p2_x-p1_x);
-        double m_r = -1/m;
-        double d = 0.3 * Math.sqrt( Math.pow(p2_x-p1_x, 2) + Math.pow(p2_y-p1_y, 2) );
-        double d_x = d / ( Math.sqrt(1 + m_r*m_r) );
-        double xm = (p1_x + p2_x)/2, ym = (p1_y + p2_y)/2;
-        double dm_x = xm - d_x, dm_y = ym - d_x*m_r;
-
-        context.quadraticCurveTo( dm_x, dm_y, p2_x, p2_y );
-
-
         context.setStroke(Color.BLACK);
-        context.setLineWidth(size/4 * scale);
-        context.stroke();
-
+        context.setLineWidth(diff/4*scale);
+        context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
+        // gray street
         context.setStroke(color);
-        context.setLineWidth(size/6 * scale);
-        context.stroke();
-
+        context.setLineWidth(diff/6*scale);
+        context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
+        // white dashes
         context.setStroke(Color.WHITE);
-        context.setLineWidth(size/40 * scale);
-        context.setLineDashes(size/9 * scale);
-        context.stroke();
-
-        context.closePath();
-
-
-        int weight = weight = streets.stream().filter( s -> s.getP1().equals(p1) && s.getP2().equals(p2) ).map( s -> s.getWeight() ).findFirst().get();
-
-        context.setFill(Color.RED);
-        context.setTextAlign(TextAlignment.CENTER);
-        context.setTextBaseline(VPos.CENTER);
-        context.fillText(weight+"", dm_x, dm_y);
-
+        context.setLineWidth(diff/40*scale);
+        context.setLineDashes(diff/9*scale);
+        context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
     }
 
+    private void fillWeights(Point2D p1, Point2D p2, double scale) {
+        double dx = (p2.getX()*diff - p1.getX()*diff)/3, dy = (p2.getY()*diff - p1.getY()*diff)/3;
+        int weight = streets.stream().filter( s -> (s.getP1().equals(p1) && s.getP2().equals(p2)) || (s.getP1().equals(p1) && s.getP2().equals(p1)) ).map( s -> s.getWeight() ).findFirst().get();
+        context.setFill(Color.RED);
+        context.fillText(weight+"" ,(p1.getX()*diff+dx - diff/8*scale), (p1.getY()*diff+dy) + diff/8*scale );
+    }
 
 
     // Requirement Buttons
@@ -348,7 +345,7 @@ public class InitController {
             return;
         }
         ArrayList<Pair<House, House>> edges = Launcher.getManager().calculateMinimumPath(selectedHQ, selectedHouse);
-        path.addAll(edges);
+        path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
         cycle.setTour(edges, false);
     }
 
@@ -357,7 +354,8 @@ public class InitController {
         selectedHouse = null;
         ArrayList<Pair<House, House>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
         edges.removeIf(e -> !Launcher.getManager().checkPathBetweenHouses( selectedHQ, e.getKey() ) );
-        path.addAll(edges);
+
+        path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
         cycle.setTour(edges, true);
     }
 
@@ -369,6 +367,11 @@ public class InitController {
     }
 
     private void resetMovements() {
+        for(House h : houses) {
+            if(h != selectedHQ && h != selectedHouse) {
+                h.setState(0);
+            }
+        }
         path = new ArrayList<>();
         cycle.resetMovement();
     }

@@ -13,7 +13,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 
 public class Launcher extends Application {
-    public static final Manager manager = new Manager(51);
+    public static final Manager manager = new Manager(90);
 
     public static Manager getManager() {
         return manager;

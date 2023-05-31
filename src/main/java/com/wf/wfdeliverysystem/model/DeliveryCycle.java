@@ -38,30 +38,30 @@ public class DeliveryCycle extends Character {
 
     public void setTour(ArrayList<Pair<House, House>> edges, boolean isTree) throws VertexNotAchievableException, VertexNotFoundException {
         if(isTree) {
+            HashMap<House, House> parents = new HashMap<>();
             ArrayList<Pair<House, House>> tour = new ArrayList<>();
             Stack<Pair<House, House>> s = new Stack<>();
-            Point2D initial = edges.get(0).getKey().getCoords();
+            House initial = edges.get(0).getKey();
+            HashMap<House, Boolean> h = new HashMap<>();
             for(Pair<House, House> p : edges) {
-                if(p.getKey().getCoords().equals( initial) ) s.add(p);
+                h.put(p.getValue(), false);
+                if( p.getKey().equals(initial) ) s.add(p);
+                parents.put(p.getValue(), initial);
             }
-            s.add(edges.get(0));
-            HashMap<Pair<House, House>, Boolean> h = new HashMap<>();
+            h.put(initial, false);
             while(!s.isEmpty()) {
                 Pair<House, House> curr = s.pop();
-                if(h.get(curr) != null) continue;
-                h.put(curr, true);
+                if(h.get(curr.getValue())) continue;
+                h.put(curr.getValue(), true);
+                h.put(curr.getKey(), true);
                 tour.add(curr);
+                parents.put(curr.getValue(), curr.getKey());
                 System.out.println(curr.getKey() + " " + curr.getValue());
                 for(Pair<House, House> p : edges) {
                     if( p.getKey().getCoords().equals(curr.getValue().getCoords()) ) s.add(p);
                 }
             }
 
-            for( int i=0; i<tour.size()-1; i++ ) {
-                if( !tour.get(i).getValue().getCoords().equals(tour.get(i+1).getKey().getCoords()) ) {
-                    tour.addAll( i+1, Launcher.getManager().calculateMinimumPath(tour.get(i).getValue(), tour.get(i+1).getKey()) );
-                }
-            }
             this.tour = parseToPoints(tour);
         } else {
             tour = parseToPoints(edges);
@@ -93,7 +93,11 @@ public class DeliveryCycle extends Character {
     public void checkDistance() {
         if(calculateDistance(getCoords(), tour.get(currentTour).getValue()) < SPEED) {
             currentTour++;
-            if(currentTour >= tour.size()) currentTour = 0;
+            if(currentTour >= tour.size()) {
+                currentTour = -1;
+                setCoords( new Point2D(Math.round(getCoords().getX()), Math.round(getCoords().getY())));
+                return;
+            }
             moveThrough(currentTour);
         }
     }
