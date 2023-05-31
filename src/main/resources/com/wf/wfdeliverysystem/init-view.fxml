@@ -15,29 +15,7 @@
 
     <Region VBox.vgrow="ALWAYS"/>
     <HBox>
-        <HBox spacing="16">
-            <Label text="Headquarter: ">
-            <font>
-               <Font size="14.0" />
-            </font></Label>
-            <RadioButton fx:id="hq1TB" selected="true" text="first">
-            <toggleGroup>
-               <ToggleGroup fx:id="hqTG" />
-            </toggleGroup>
-            <font>
-               <Font size="14.0" />
-            </font></RadioButton>
-            <RadioButton fx:id="h12TB" text="second" toggleGroup="$hqTG">
-            <font>
-               <Font size="14.0" />
-            </font></RadioButton>
-            <RadioButton fx:id="hq3TB" text="third" toggleGroup="$hqTG">
-            <font>
-               <Font size="14.0" />
-            </font></RadioButton>
-        </HBox>
-        <Region HBox.hgrow="ALWAYS"/>
-        <HBox spacing="16">
+        <HBox spacing="8">
             <Label text="Graph type:">
             <font>
                <Font size="14.0" />
@@ -64,7 +42,7 @@
     <Canvas fx:id="canvas" height="800" onMouseClicked="#onVertexSelected" width="1500" />
 
     <Region VBox.vgrow="ALWAYS"/>
-    <HBox spacing="16">
+    <HBox spacing="8">
         <Button fx:id="checkDeliveryBtn" onAction="#onCheckDelivery" text="Check Delivery Path">
          <font>
             <Font size="14.0" />

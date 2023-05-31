@@ -46,17 +46,9 @@ public class InitController {
     @FXML
     private Button viewGraphsBtn;
     @FXML
-    private RadioButton hq1TB;
-    @FXML
-    private RadioButton h12TB;
-    @FXML
-    private RadioButton hq3TB;
-    @FXML
     private RadioButton matrixTB;
     @FXML
     private RadioButton listTB;
-    @FXML
-    private ToggleGroup hqTG;
     @FXML
     private ToggleGroup typeTG;
 
@@ -85,9 +77,12 @@ public class InitController {
     private ArrayList<House> headquarters;
     House selectedHouse, selectedHQ;
     private ArrayList<Pair<Point2D, Point2D>> edges;
-    private final int x_dim = 16, y_dim = 9;
+    private final int x_dim = 16, y_dim = 7;
     public Stage stage;
     DeliveryCycle cycle;
+
+    ArrayList<Pair<Point2D, Point2D>> path;
+
     // Init, refresh and close
 
     public void initialize() throws LoopsNotAllowedException, VertexAlreadyAddedException, MultipleEdgesNotAllowedException, VertexNotFoundException {
@@ -101,28 +96,15 @@ public class InitController {
         cycle = new DeliveryCycle(new Point2D(takenPoints.length, takenPoints[0].length), pictures[2]);
 
         edges = new ArrayList<>();
+        path = new ArrayList<>();
         rnd = new Random();
 
         // System.out.println(diff);
 
         generateVertices();
 
-        hqTG.selectedToggleProperty().addListener( changeListener -> {
-            cycle.resetMovement();
-            if( hq1TB.isSelected() ) {
-                selectedHQ = headquarters.get(0);
-                cycle.setId(0);
-            } else if(h12TB.isSelected()) {
-                selectedHQ = headquarters.get(1);
-                cycle.setId(1);
-            } else {
-                selectedHQ = headquarters.get(2);
-                cycle.setId(2);
-            }
-        } );
-
         typeTG.selectedToggleProperty().addListener( changeListener -> {
-            cycle.resetMovement();
+            resetMovements();
             Launcher.getManager().setMatrix(matrixTB.isSelected());
         });
 
@@ -148,7 +130,7 @@ public class InitController {
         // Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         Rectangle2D bounds = new Rectangle2D(0, 0 , stage.getWidth(), stage.getHeight());
         canvas.setHeight(bounds.getHeight() * 0.65);
-        canvas.setWidth(bounds.getWidth() - 48);
+        canvas.setWidth(bounds.getWidth() * 0.9);
 
         if( canvas.getWidth()/ (x_dim-1) > canvas.getHeight()/ (y_dim-1) ) {
             diff = Math.floor(canvas.getHeight()/ (y_dim-1));
@@ -157,18 +139,19 @@ public class InitController {
             diff = Math.floor(canvas.getWidth()/ (x_dim-1));
             canvas.setHeight(diff*(y_dim-1));
         }
-        double h_padding = bounds.getWidth()*0.1, v_padding = bounds.getHeight()*0.1;
+        double h_padding = (bounds.getWidth() - canvas.getWidth())/2, v_padding = bounds.getHeight()*0.05;
         layout.setPadding( new Insets( v_padding, h_padding, v_padding, h_padding ));
-        wfTitleLbl.setFont(Font.font( wfTitleLbl.getFont().toString(), FontWeight.BOLD, bounds.getHeight()*0.01 + 18));
+        wfTitleLbl.setFont(Font.font( wfTitleLbl.getFont().toString(), FontWeight.BOLD, bounds.getHeight()*0.03 + 11));
 
         // painting
         context.setFill(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
         context.setFill(COLOR_PALETTE[BACKGROUND]);
-        context.fillRoundRect(0, 0, canvas.getWidth(), canvas.getHeight(), diff/2, diff/2);
-        for(Pair<Point2D, Point2D> e : edges) drawLine(e.getKey(), e.getValue());
+        context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        for(Pair<Point2D, Point2D> e : edges) drawLine(e.getKey(), e.getValue(), Color.GRAY);
+        for(Pair<Point2D, Point2D> e : path) drawLine(e.getKey(), e.getValue(), COLOR_PALETTE[SELECTED_HOUSE]);
         for(Element h : houses) h.drawCircle(COLOR_PALETTE[UNSELECTED], diff, context);
         if(selectedHouse != null) selectedHouse.drawCircle(COLOR_PALETTE[SELECTED_HOUSE], diff, context);
-        if(selectedHQ != null) selectedHQ.drawCircle(COLOR_PALETTE[SELECTED_HQ], diff, context);
+        if(selectedHQ != null) selectedHQ.drawCircle(COLOR_PALETTE[SELECTED_HOUSE], diff, context);
         cycle.drawCircle(COLOR_PALETTE[UNSELECTED], diff, context);
         cycle.move();
 
@@ -189,7 +172,7 @@ public class InitController {
             headquarters.add(currElement);
             if(selectedHQ == null) selectedHQ = headquarters.get(0);
             // repeat until the number of vertices is reached
-            int verticesPerTree = 25;
+            int verticesPerTree = 17;
             while (houses.size() % verticesPerTree != 0) {
                 // generate a random point one cell separated from the current
                 int nx = (int) currElement.getCoords().getX() + rnd.nextInt(-1, 2), ny = (int) currElement.getCoords().getY() + rnd.nextInt(-1, 2);
@@ -206,7 +189,7 @@ public class InitController {
                     houses.add( newElement );
                     edges.add(new Pair<>(currElement.getCoords(), newElement.getCoords()));
                     Launcher.getManager().getList().addVertex(newElement);
-                    int weight = rnd.nextInt(100);
+                    int weight = rnd.nextInt(1, 100);
                     Launcher.getManager().getList().addEdge(currElement, newElement, ""+houses.size(), weight);
                     Launcher.getManager().getMatrix().addVertex(newElement);
                     Launcher.getManager().getMatrix().addEdge(currElement, newElement, ""+houses.size(), weight);
@@ -250,13 +233,13 @@ public class InitController {
 
     // Drawing
 
-    private void drawLine(Point2D p1, Point2D p2) {
+    private void drawLine(Point2D p1, Point2D p2, Color color) {
         // border
         context.setStroke(Color.BLACK);
         context.setLineWidth(diff/4);
         context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
         // gray street
-        context.setStroke(Color.GRAY);
+        context.setStroke(color);
         context.setLineWidth(diff/6);
         context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
         // white dashes
@@ -268,7 +251,7 @@ public class InitController {
 
     // Requirement Buttons
     public void onVertexSelected(MouseEvent mouseEvent) {
-        cycle.resetMovement();
+        resetMovements();
         double currX = mouseEvent.getX()/diff, currY = mouseEvent.getY()/diff;
         Point2D closest = new Point2D((int)Math.round(currX), (int)Math.round(currY));
 
@@ -278,14 +261,19 @@ public class InitController {
 
         if(isInsideCircle && takenPoints[(int)closest.getX()][(int)closest.getY()]) {
             try {
-                selectedHouse = (House)houses.stream().filter( h -> h.getCoords().equals(closest) && h.getPicture() != pictures[0]).findFirst().get();
+                House house = houses.stream().filter( h -> h.getCoords().equals(closest)).findFirst().get();
+                if( house.getPicture() == pictures[0] ) {
+                    selectedHQ = house;
+                } else {
+                    selectedHouse = house;
+                }
             } catch(NoSuchElementException e) {
                 e.getStackTrace();
             }
         }
     }
     public void onCheckDelivery(ActionEvent actionEvent) throws VertexNotAchievableException, VertexNotFoundException {
-        System.out.println(Launcher.getManager().isMatrix());
+        resetMovements();
         if(selectedHouse == null) {
             Launcher.showAlert(Alert.AlertType.ERROR, "Unselected house", "First select a house and try again.");
             return;
@@ -295,20 +283,30 @@ public class InitController {
             return;
         }
         ArrayList<Pair<House, House>> edges = Launcher.getManager().calculateMinimumPath(selectedHQ, selectedHouse);
+        path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
         cycle.setTour(edges, false);
     }
 
     public void onGenerateTour(ActionEvent actionEvent) throws VertexNotFoundException, VertexNotAchievableException {
+        resetMovements();
         selectedHouse = null;
         ArrayList<Pair<House, House>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
         edges.removeIf(e -> !Launcher.getManager().checkPathBetweenHouses( selectedHQ, e.getKey() ) );
+
+        path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
         cycle.setTour(edges, true);
     }
 
     public void onViewGraphs(ActionEvent actionEvent) {
+        resetMovements();
         Pair<FXMLLoader, Stage> handlers = Launcher.renderView("graph-representations.fxml", 1280, 480);
         GraphRepresentationController controller = handlers.getKey().getController();
         controller.initialize(Launcher.getManager().getList().toString(), Launcher.getManager().getMatrix().toString());
+    }
+
+    private void resetMovements() {
+        path = new ArrayList<>();
+        cycle.resetMovement();
     }
 
     public void onExit(ActionEvent actionEvent) {

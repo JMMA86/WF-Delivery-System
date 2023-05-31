@@ -39,7 +39,6 @@ public class DeliveryCycle extends Element {
     }
 
     public void setTour(ArrayList<Pair<House, House>> edges, boolean isTree) throws VertexNotAchievableException, VertexNotFoundException {
-        // TODO: Adapt method signatures to have Houses instead of Houses
         if(isTree) {
             ArrayList<Pair<House, House>> tour = new ArrayList<>();
             Stack<Pair<House, House>> s = new Stack<>();
