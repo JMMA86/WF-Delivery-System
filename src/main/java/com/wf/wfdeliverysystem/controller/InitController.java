@@ -294,13 +294,13 @@ public class InitController {
             Launcher.showAlert(Alert.AlertType.INFORMATION, "Unreachable House", "House is not connected to the current headquarter");
             return;
         }
-        ArrayList<Pair<Element, Element>> edges = Launcher.getManager().calculateMinimumPath(selectedHQ, selectedHouse);
+        ArrayList<Pair<House, House>> edges = Launcher.getManager().calculateMinimumPath(selectedHQ, selectedHouse);
         cycle.setTour(edges, false);
     }
 
     public void onGenerateTour(ActionEvent actionEvent) throws VertexNotFoundException, VertexNotAchievableException {
         selectedHouse = null;
-        ArrayList<Pair<Element, Element>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
+        ArrayList<Pair<House, House>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
         edges.removeIf(e -> !Launcher.getManager().checkPathBetweenHouses( selectedHQ, e.getKey() ) );
         cycle.setTour(edges, true);
     }

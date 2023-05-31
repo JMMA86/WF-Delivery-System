@@ -38,24 +38,24 @@ public class DeliveryCycle extends Element {
         return tour;
     }
 
-    public void setTour(ArrayList<Pair<Element, Element>> edges, boolean isTree) throws VertexNotAchievableException, VertexNotFoundException {
-        // TODO: Adapt method signatures to have Houses instead of Elements
+    public void setTour(ArrayList<Pair<House, House>> edges, boolean isTree) throws VertexNotAchievableException, VertexNotFoundException {
+        // TODO: Adapt method signatures to have Houses instead of Houses
         if(isTree) {
-            ArrayList<Pair<Element, Element>> tour = new ArrayList<>();
-            Stack<Pair<Element, Element>> s = new Stack<>();
+            ArrayList<Pair<House, House>> tour = new ArrayList<>();
+            Stack<Pair<House, House>> s = new Stack<>();
             Point2D initial = edges.get(0).getKey().getCoords();
-            for(Pair<Element, Element> p : edges) {
+            for(Pair<House, House> p : edges) {
                 if(p.getKey().getCoords().equals( initial) ) s.add(p);
             }
             s.add(edges.get(0));
-            HashMap<Pair<Element, Element>, Boolean> h = new HashMap<>();
+            HashMap<Pair<House, House>, Boolean> h = new HashMap<>();
             while(!s.isEmpty()) {
-                Pair<Element, Element> curr = s.pop();
+                Pair<House, House> curr = s.pop();
                 if(h.get(curr) != null) continue;
                 h.put(curr, true);
                 tour.add(curr);
                 System.out.println(curr.getKey() + " " + curr.getValue());
-                for(Pair<Element, Element> p : edges) {
+                for(Pair<House, House> p : edges) {
                     if( p.getKey().getCoords().equals(curr.getValue().getCoords()) ) s.add(p);
                 }
             }
@@ -73,9 +73,9 @@ public class DeliveryCycle extends Element {
         moveThrough(currentTour);
     }
 
-    private ArrayList<Pair<Point2D, Point2D>> parseToPoints(ArrayList<Pair<Element, Element>> edges) {
+    private ArrayList<Pair<Point2D, Point2D>> parseToPoints(ArrayList<Pair<House, House>> edges) {
         ArrayList<Pair<Point2D, Point2D>> points = new ArrayList<>();
-        for(Pair<Element, Element> p : edges) {
+        for(Pair<House, House> p : edges) {
             points.add( new Pair<>( p.getKey().getCoords(), p.getValue().getCoords()) );
         }
         return points;
