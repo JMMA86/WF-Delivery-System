@@ -3,7 +3,6 @@ package com.wf.wfdeliverysystem.model;
 import com.wf.wfdeliverysystem.Launcher;
 import com.wf.wfdeliverysystem.exceptions.VertexNotAchievableException;
 import com.wf.wfdeliverysystem.exceptions.VertexNotFoundException;
-import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -11,21 +10,20 @@ import javafx.scene.paint.Color;
 import javafx.util.Pair;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
-public class DeliveryCycle extends Element {
+public class DeliveryCycle extends Character {
     private boolean moving;
     private Point2D movement;
 
     private int currentTour;
-    private double SPEED = 0.05;
-    private Point2D defaultPosition;
+    private final double SPEED = 0.05;
+    private final Point2D defaultPosition;
 
     ArrayList<Pair<Point2D, Point2D>> tour;
     int id;
 
-    public DeliveryCycle(Point2D coords, Image picture) {
-        super(coords, picture);
+    public DeliveryCycle(double size, GraphicsContext context, Point2D coords, Image picture) {
+        super(size, context, coords, picture);
         this.moving = false;
         this.movement = new Point2D(0, 0);
         this.currentTour = -1;
@@ -142,4 +140,5 @@ public class DeliveryCycle extends Element {
     public void setId(int id) {
         this.id = id;
     }
+
 }

@@ -1,13 +1,14 @@
 package com.wf.wfdeliverysystem.model;
 
 import javafx.geometry.Point2D;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 
-public class House extends Element implements Comparable<House> {
+public class House extends Character implements Comparable<House> {
     private String id;
 
-    public House(Point2D coords, Image picture, String id) {
-        super(coords, picture);
+    public House(double size, GraphicsContext context, Point2D coords, Image picture, String id) {
+        super(size, context, coords, picture);
         this.id = id;
     }
 
@@ -28,4 +29,5 @@ public class House extends Element implements Comparable<House> {
     public int compareTo(House h) {
         return this.getId().compareTo(h.getId());
     }
+
 }

@@ -1,45 +1,38 @@
 package com.wf.wfdeliverysystem.model;
 
-import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 
-public class Element {
-    private Point2D coords;
-    private Image picture;
+public abstract class Element {
 
-    public Element(Point2D coords, Image picture) {
-        this.coords = coords;
-        this.picture = picture;
+    private int state;
+    private Color background;
+    private GraphicsContext context;
+
+    public Element(GraphicsContext context) {
+        setState(0);
+        this.context = context;
     }
 
-    public Point2D getCoords() {
-        return coords;
+    public int getState() {
+        return state;
     }
 
-    public void setCoords(Point2D coords) {
-        this.coords = coords;
+    public Color getBackground() {
+        return background;
     }
 
-    public Image getPicture() {
-        return picture;
+    public void setBackground(Color background) {
+        this.background = background;
     }
 
-    public void setPicture(Image picture) {
-        this.picture = picture;
+    public GraphicsContext getContext() {
+        return context;
     }
 
-    public void drawCircle(Color color, double size, GraphicsContext context) {
-        // set coordinates
-        double x = coords.getX()*size-size/4, y = coords.getY()*size-size/4;
-        // fill border
-        context.setFill(Color.BLACK);
-        context.fillOval(x-size/20, y-size/20, size/2+size/10, size/2+size/10);
-        // fill background
-        context.setFill(color);
-        context.fillOval(x, y, size/2, size/2);
-        // draw the image
-        context.drawImage(picture, x, y, size/2, size/2);
+    public void setContext(GraphicsContext context) {
+        this.context = context;
     }
+
+    public abstract void setState(int state);
 }
