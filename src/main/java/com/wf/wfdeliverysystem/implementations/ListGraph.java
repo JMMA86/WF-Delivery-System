@@ -21,12 +21,6 @@ public class ListGraph<T> implements IGraph<T> {
         this.allowsLoop = allowsLoop;
     }
 
-    /**
-     * Adds a vertex to the list graph
-     *
-     * @param vertex Value to ve inserted
-     * @throws VertexAlreadyAddedException If vertex is already added
-     */
     @Override
     public void addVertex(T vertex) throws VertexAlreadyAddedException {
         if (searchVertexIndex(vertex) == -1) {
@@ -36,14 +30,6 @@ public class ListGraph<T> implements IGraph<T> {
         }
     }
 
-    /**
-     * Adds an edge between two vertices
-     *
-     * @param start  origin vertex
-     * @param end    destination vertex
-     * @param weight connection weight
-     * @throws VertexNotFoundException if one of the vertices doesn't exist
-     */
     @Override
     public void addEdge(T start, T end, String id, int weight) throws VertexNotFoundException, LoopsNotAllowedException, MultipleEdgesNotAllowedException {
         int startVertex = searchVertexIndex(start);
@@ -78,17 +64,11 @@ public class ListGraph<T> implements IGraph<T> {
         return false;
     }
 
-    /**
-     * Deletes a vertex including all associated edges
-     *
-     * @param vertexValue vertex to be deleted
-     * @throws VertexNotFoundException if the vertex doesn't exist
-     */
     @Override
-    public void deleteVertex(T vertexValue) throws VertexNotFoundException {
-        int vertexIndex = searchVertexIndex(vertexValue);
+    public void deleteVertex(T vertex) throws VertexNotFoundException {
+        int vertexIndex = searchVertexIndex(vertex);
         if (vertexIndex == -1) {
-            throw new VertexNotFoundException("Error. Vertex not found: " + vertexValue);
+            throw new VertexNotFoundException("Error. Vertex not found: " + vertex);
         }
         for (ListVertex<T> tVertex : list) {
             for (int j = 0; j < tVertex.getEdges().size(); j++) {
@@ -100,14 +80,6 @@ public class ListGraph<T> implements IGraph<T> {
         list.remove(vertexIndex);
     }
 
-    /**
-     * Deletes an edge between two vertices
-     *
-     * @param start origin vertex
-     * @param end   destination vertex
-     * @throws EdgeNotFoundException   if edge doesn't exist
-     * @throws VertexNotFoundException if one of the vertices doesn't exist
-     */
     @Override
     public void deleteEdge(T start, T end, String id) throws EdgeNotFoundException, VertexNotFoundException {
         int startIndex = searchVertexIndex(start);
@@ -263,7 +235,7 @@ public class ListGraph<T> implements IGraph<T> {
     }
 
     @Override
-    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException {
+    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, LoopsNotAllowedException {
         int originPos = searchVertexIndex(value);
         if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
         ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
@@ -283,12 +255,16 @@ public class ListGraph<T> implements IGraph<T> {
             ListVertex<T> temp = toVisit.poll();
 
             for (ListEdge<T> ad : temp.getEdges()) {
-                if (ad.getRightVertex().getColor().equals(Color.WHITE) && ad.getWeight() < ad.getRightVertex().getDistance()) {
-                    toVisit.remove(ad.getRightVertex());
-                    ad.getRightVertex().setDistance(ad.getWeight());
-                    toVisit.add(ad.getRightVertex());
-                    predecessors.add(new Pair<>(temp.getValue(), ad.getRightVertex().getValue()));
-                    ad.getRightVertex().setColor(Color.BLACK);
+                try {
+                    if (ad.getRightVertex().getColor().equals(Color.WHITE) && ad.getWeight() < ad.getRightVertex().getDistance()) {
+                        toVisit.remove(ad.getRightVertex());
+                        ad.getRightVertex().setDistance(ad.getWeight());
+                        toVisit.add(ad.getRightVertex());
+                        predecessors.add(new Pair<>(temp.getValue(), ad.getRightVertex().getValue()));
+                        ad.getRightVertex().setColor(Color.BLACK);
+                    }
+                } catch (NullPointerException e) {
+                    throw new LoopsNotAllowedException("Error. Loops not allowed to create MST");
                 }
             }
 

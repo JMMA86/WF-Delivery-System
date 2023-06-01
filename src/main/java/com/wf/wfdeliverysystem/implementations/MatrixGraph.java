@@ -265,7 +265,7 @@ public class MatrixGraph<T> implements IGraph<T> {
     }
 
     @Override
-    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException {
+    public ArrayList<Pair<T, T>> prim(T value) throws VertexNotFoundException, LoopsNotAllowedException {
         int originPos = searchVertexIndex(value);
         if (originPos == -1) throw new VertexNotFoundException("The vertex was not found");
         ArrayList<Pair<T, T>> predecessors = new ArrayList<>();
@@ -286,12 +286,16 @@ public class MatrixGraph<T> implements IGraph<T> {
             int temp = searchVertexIndex(toVisit.poll().getValue());
             for (int i = 0; i < matrix.length; i++) {
                 if (matrix[temp][i] != 0) {
-                    if (vertices[i].getColor().equals(Color.WHITE) && matrix[temp][i] < vertices[i].getDistance()) {
-                        toVisit.remove(vertices[i]);
-                        vertices[i].setDistance(matrix[temp][i]);
-                        toVisit.add(vertices[i]);
-                        predecessors.add(new Pair<>(vertices[temp].getValue(), vertices[i].getValue()));
-                        vertices[i].setColor(Color.BLACK);
+                    try {
+                        if (vertices[i].getColor().equals(Color.WHITE) && matrix[temp][i] < vertices[i].getDistance()) {
+                            toVisit.remove(vertices[i]);
+                            vertices[i].setDistance(matrix[temp][i]);
+                            toVisit.add(vertices[i]);
+                            predecessors.add(new Pair<>(vertices[temp].getValue(), vertices[i].getValue()));
+                            vertices[i].setColor(Color.BLACK);
+                        }
+                    } catch (NullPointerException e) {
+                        throw new LoopsNotAllowedException("Error. Loops not allowed to create MST");
                     }
                 }
             }

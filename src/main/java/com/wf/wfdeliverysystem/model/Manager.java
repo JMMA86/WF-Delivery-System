@@ -1,5 +1,6 @@
 package com.wf.wfdeliverysystem.model;
 
+import com.wf.wfdeliverysystem.exceptions.LoopsNotAllowedException;
 import com.wf.wfdeliverysystem.exceptions.VertexNotAchievableException;
 import com.wf.wfdeliverysystem.exceptions.VertexNotFoundException;
 import com.wf.wfdeliverysystem.implementations.IGraph;
@@ -54,7 +55,7 @@ public class Manager implements IWFDelivery {
 
     //Using Prim algorithm
     @Override
-    public ArrayList<Pair<House, House>> generateDeliveryTour(House h0) throws VertexNotFoundException {
+    public ArrayList<Pair<House, House>> generateDeliveryTour(House h0) throws VertexNotFoundException, LoopsNotAllowedException {
         if (isMatrix) {
             return matrix.prim(h0);
         } else {

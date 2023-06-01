@@ -1,5 +1,6 @@
 package com.wf.wfdeliverysystem.model;
 
+import com.wf.wfdeliverysystem.exceptions.LoopsNotAllowedException;
 import com.wf.wfdeliverysystem.exceptions.VertexNotAchievableException;
 import com.wf.wfdeliverysystem.exceptions.VertexNotFoundException;
 import javafx.util.Pair;
@@ -26,5 +27,5 @@ public interface IWFDelivery {
      * @param h0 The house from which the tour starts
      * @return A list of house pairs, which represents the edges of the minimum spanning tree, in order.
      */
-    ArrayList<Pair<House,House>> generateDeliveryTour(House h0) throws VertexNotFoundException;
+    ArrayList<Pair<House,House>> generateDeliveryTour(House h0) throws VertexNotFoundException, LoopsNotAllowedException;
 }
