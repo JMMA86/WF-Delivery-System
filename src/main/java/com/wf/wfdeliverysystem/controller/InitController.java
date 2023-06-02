@@ -5,6 +5,9 @@ import com.wf.wfdeliverysystem.exceptions.*;
 import com.wf.wfdeliverysystem.model.*;
 import com.wf.wfdeliverysystem.model.Character;
 import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -82,6 +85,7 @@ public class InitController {
     private ArrayList<Pair<Point2D, Point2D>> path;
     Affine affine;
     double zoomLevel = 1, preX, preY;
+    boolean limitBounds;
 
     // Init, refresh and close
 
@@ -96,6 +100,7 @@ public class InitController {
         cycle.setState(1);
         preX = canvas.getWidth();
         preY = canvas.getHeight();
+        limitBounds = true;
 
         streets = new ArrayList<>();
         rnd = new Random();
@@ -152,14 +157,33 @@ public class InitController {
         context.setTransform(affine);
         // Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         Rectangle2D bounds = new Rectangle2D(0, 0 , stage.getWidth(), stage.getHeight());
-        canvas.setHeight(bounds.getHeight() * 0.6);
         canvas.setWidth(bounds.getWidth() * 0.9);
+        canvas.setHeight(bounds.getHeight() * 0.6);
+
+
+        /*
+
+        if( stage.getHeight() > stage.getWidth()*3/4) {
+            stage.setWidth( stage.getHeight()*4/3 );
+        }
+
+        if( stage.getWidth() > stage.getHeight() * 18/9 ) {
+            stage.setHeight( stage.getWidth()*9/18 );
+        }
+        stage.maximizedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
+                limitBounds = stage.isMaximized();
+            }
+        });
+
+         */
 
         // buttons
         Set<Node> buttons = stage.getScene().getRoot().lookupAll(".button");
 
         for(Node b : buttons) {
-            double textSize = bounds.getHeight()*0.015;
+            double textSize = Math.min(bounds.getWidth()*0.01, bounds.getHeight()*0.015);
             ( (Button) b ).setStyle(String.format("-fx-font-size: %fpt;", textSize));
         }
 
