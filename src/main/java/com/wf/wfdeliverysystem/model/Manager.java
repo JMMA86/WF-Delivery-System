@@ -10,14 +10,23 @@ import javafx.util.Pair;
 import java.util.ArrayList;
 
 public class Manager implements IWFDelivery {
-    static private final Manager manager = new Manager(50);
+    static private final Manager manager = new Manager(60);
     //False = listGraph
     //True = matrixGraph
     private boolean isMatrix;
     private final IGraph<House> list;
     private final IGraph<House> matrix;
 
-    private Manager(int vertices) {
+    public IGraph<House> getList() {
+        return list;
+    }
+
+    public IGraph<House> getMatrix() {
+        return matrix;
+    }
+
+
+    public Manager(int vertices) {
         list = new ListGraph<>(false, false, false);
         matrix = new MatrixGraph<>(false, vertices);
     }
