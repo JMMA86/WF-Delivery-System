@@ -10,7 +10,7 @@ This project is the implementation of the Second Computing and Discrete Structur
 
 ## Documentation
 
-_*Project Requirements:*_ https://docs.google.com/document/d/1ssgsOkYqnA9Y1QGfpM49PScAedDkmYo6uETurNd_Iw8/edit?usp=sharing
+Project Requirements and UML Class Diagram (PDF format) are inside the doc folder.
 
 ## Executing Information
 
