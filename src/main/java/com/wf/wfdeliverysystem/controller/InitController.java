@@ -6,6 +6,7 @@ import com.wf.wfdeliverysystem.model.*;
 import com.wf.wfdeliverysystem.model.Character;
 import javafx.application.Platform;
 import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -16,15 +17,18 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
 import javafx.stage.Stage;
@@ -35,6 +39,8 @@ import java.util.*;
 
 public class InitController {
 
+    @FXML
+    private Button showInformation;
     @FXML
     private Label wfTitleLbl;
     // FXML
@@ -160,32 +166,15 @@ public class InitController {
         canvas.setWidth(bounds.getWidth() * 0.9);
         canvas.setHeight(bounds.getHeight() * 0.6);
 
-
-        /*
-
-        if( stage.getHeight() > stage.getWidth()*3/4) {
-            stage.setWidth( stage.getHeight()*4/3 );
+        // labels
+        Set<Node> labels = new HashSet<>(stage.getScene().getRoot().lookupAll(".label"));
+        labels.addAll( stage.getScene().getRoot().lookupAll(".button") );
+        labels.addAll( stage.getScene().getRoot().lookupAll(".radio-button") );
+        double textSize = Math.min(bounds.getWidth()*0.01, bounds.getHeight()*0.015);
+        for(Node b : labels) {
+            b.setStyle(String.format("-fx-font-size: %fpt;", textSize));
         }
 
-        if( stage.getWidth() > stage.getHeight() * 18/9 ) {
-            stage.setHeight( stage.getWidth()*9/18 );
-        }
-        stage.maximizedProperty().addListener(new ChangeListener<Boolean>() {
-            @Override
-            public void changed(ObservableValue<? extends Boolean> observableValue, Boolean aBoolean, Boolean t1) {
-                limitBounds = stage.isMaximized();
-            }
-        });
-
-         */
-
-        // buttons
-        Set<Node> buttons = stage.getScene().getRoot().lookupAll(".button");
-
-        for(Node b : buttons) {
-            double textSize = Math.min(bounds.getWidth()*0.01, bounds.getHeight()*0.015);
-            ( (Button) b ).setStyle(String.format("-fx-font-size: %fpt;", textSize));
-        }
 
         if( canvas.getWidth()/ (x_dim-1) > canvas.getHeight()/ (y_dim-1) ) {
             diff = Math.floor(canvas.getHeight()/ (y_dim-1));
@@ -197,7 +186,7 @@ public class InitController {
 
         double h_padding = (bounds.getWidth() - canvas.getWidth())/2, v_padding = bounds.getHeight()*0.05;
         layout.setPadding( new Insets( v_padding, h_padding, v_padding, h_padding ));
-        wfTitleLbl.setFont(Font.font( wfTitleLbl.getFont().toString(), FontWeight.BOLD, bounds.getHeight()*0.05));
+        wfTitleLbl.setStyle( String.format("-fx-font-weight: bold; -fx-font-size: %fpt;", bounds.getHeight()*0.05 ));
 
         // painting
         context.setFill(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
@@ -427,5 +416,31 @@ public class InitController {
         Stage stage = (Stage) ( (Node) actionEvent.getSource()).getScene().getWindow();
         running = false;
         stage.close();
+    }
+
+    public void onShowInformation(ActionEvent actionEvent) {
+        Stage info = new Stage();
+        info.setTitle("Delivery System Information");
+        TextArea textArea = new TextArea(
+                "On the right you will see a Toggle Button to change the way the program calculates the paths, either via adjacency list or matrix. " +
+                        "You can select any house or headquarter by clicking it. " +
+                        "To unselect a house, click in any place of the canvas.\n\n" +
+                        "The three buttons on the left bottom corner allows you to generate paths and see the graph representations, there must be a house selected to check the delivery path.\n\n" +
+                        "The window is completely responsive, so you can adjust the size in any way. You can also make scroll to zoom in and out, " +
+                        "if you want to see more clearly the weights of the streets.\n\n" +
+                        "It is not recommendable to scroll while the path is being generated, because it can cause a bad performance. " +
+                        "The minimum supported resolution is 800x600.");
+        textArea.setStyle("-fx-text-alignment: justify; -fx-font-size: 14");
+        textArea.setWrapText(true);
+        textArea.setEditable(false);
+
+        VBox vbox = new VBox(textArea);
+        vbox.setPadding(new Insets(16, 16, 16,16));
+        VBox.setVgrow(textArea, Priority.ALWAYS);
+        info.setScene(new Scene(vbox));
+        info.setResizable(false);
+        info.setMinWidth(400);
+        info.setMinHeight(400);
+        info.show();
     }
 }

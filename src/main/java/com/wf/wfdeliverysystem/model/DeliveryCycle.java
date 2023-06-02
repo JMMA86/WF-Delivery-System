@@ -56,7 +56,7 @@ public class DeliveryCycle extends Character {
                 h.put(curr.getValue(), true);
                 h.put(curr.getKey(), true);
                 bfsEdges.add(curr);
-                System.out.println(curr.getKey() + " " + curr.getValue());
+                // System.out.println(curr.getKey() + " " + curr.getValue());
                 for(Pair<House, House> p : edges) {
                     if( p.getKey().getCoords().equals(curr.getValue().getCoords()) ) s.add(p);
                 }

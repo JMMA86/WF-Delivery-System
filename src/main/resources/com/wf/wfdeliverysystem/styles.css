@@ -15,3 +15,9 @@
 .button:pressed {
     -fx-background-insets:2 0 0 0,2 0 3 0,2 0 4 0,2 0 5;
 }
+
+.jfx-radio-button {
+    -fx-font-family: "Arial";
+    -fx-selected-color: "#9c69e7";
+    -fx-unselected-color: "#d4bef5";
+}

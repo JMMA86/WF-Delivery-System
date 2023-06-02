@@ -20,26 +20,17 @@
     <Region VBox.vgrow="ALWAYS"/>
     <HBox>
         <HBox spacing="8">
-            <Label text="Graph type:">
-            <font>
-               <Font size="14.0" />
-            </font></Label>
-
+            <Label text="Graph type:"/>
 
             <RadioButton fx:id="listTB" text="List" selected="true">
                 <toggleGroup>
                    <ToggleGroup fx:id="typeTG" />
                 </toggleGroup>
-                <font>
-                    <Font size="14.0" />
-                </font>
             </RadioButton>
-            <RadioButton fx:id="matrixTB" text="Matrix" toggleGroup="$typeTG">
-                <font>
-                   <Font size="14.0" />
-                </font>
-            </RadioButton>
+            <RadioButton fx:id="matrixTB" text="Matrix" toggleGroup="$typeTG"/>
         </HBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="showInformation" onAction="#onShowInformation" text="More Information"/>
     </HBox>
 
     <Region VBox.vgrow="ALWAYS"/>
@@ -47,26 +38,10 @@
 
     <Region VBox.vgrow="ALWAYS"/>
     <HBox spacing="16">
-        <Button fx:id="generateTourBtn" onAction="#onGenerateTour" text="Generate Advertising Tour">
-         <font>
-            <Font size="14.0" />
-         </font></Button>
-        <Button fx:id="checkDeliveryBtn" onAction="#onCheckDelivery" text="Check Delivery Path" disable="true">
-         <font>
-            <Font size="14.0" />
-         </font></Button>
-        <Button fx:id="viewGraphsBtn" onAction="#onViewGraphs" text="View Graph Representations">
-         <font>
-            <Font size="14.0" />
-         </font></Button>
+        <Button fx:id="generateTourBtn" onAction="#onGenerateTour" text="Generate Advertising Tour"/>
+        <Button fx:id="checkDeliveryBtn" onAction="#onCheckDelivery" text="Check Delivery Path" disable="true"/>
+        <Button fx:id="viewGraphsBtn" onAction="#onViewGraphs" text="View Graph Representations"/>
         <Region HBox.hgrow="ALWAYS" />
-        <Button fx:id="exitBtn" onAction="#onExit" text="Exit">
-         <font>
-            <Font size="14.0" />
-         </font></Button>
+        <Button fx:id="exitBtn" onAction="#onExit" text="Exit"/>
     </HBox>
-
-    <padding>
-        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
-    </padding>
 </VBox>
