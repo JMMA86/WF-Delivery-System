@@ -273,4 +273,22 @@ public class ListGraph<T> implements IGraph<T> {
 
         return predecessors;
     }
+
+
+    @Override
+    public String toString() {
+        StringBuilder ans = new StringBuilder();
+        for(ListVertex<T> u : list) {
+            int limit = 6;
+            String valueStr = String.format("%" + limit +  "s", u.getValue());
+            ans.append(String.format("%s -> { ", valueStr));
+            for(ListVertex<T> v : u.getEdges().stream().map(ListEdge::getRightVertex).toList() ) {
+                ans.append(String.format("%s, ", v.getValue()));
+            }
+            if(u.getEdges().size() > 0) ans.replace(ans.length()-2, ans.length(), "");
+            ans.append(" }\n");
+        }
+        return ans.toString();
+
+    }
 }
