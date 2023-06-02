@@ -5,6 +5,7 @@ import com.wf.wfdeliverysystem.exceptions.VertexNotAchievableException;
 import com.wf.wfdeliverysystem.exceptions.VertexNotFoundException;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.effect.Light;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.util.Pair;
@@ -21,6 +22,7 @@ public class DeliveryCycle extends Character {
 
     ArrayList<Pair<Point2D, Point2D>> tour;
     int id;
+    Pair<Point2D, Point2D> currentPoints;
 
     public DeliveryCycle(double size, GraphicsContext context, Point2D coords, Image picture) {
         super(size, context, coords, picture);
@@ -30,6 +32,7 @@ public class DeliveryCycle extends Character {
         this.tour = new ArrayList<>();
         defaultPosition = coords;
         this.id = 0;
+        this.currentPoints = null;
     }
 
     public ArrayList<Pair<Point2D, Point2D>> getTour() {
@@ -37,34 +40,30 @@ public class DeliveryCycle extends Character {
     }
 
     public void setTour(ArrayList<Pair<House, House>> edges, boolean isTree) throws VertexNotAchievableException, VertexNotFoundException {
+        ArrayList<Pair<House, House>> bfsEdges = new ArrayList<>();
         if(isTree) {
-            HashMap<House, House> parents = new HashMap<>();
-            ArrayList<Pair<House, House>> tour = new ArrayList<>();
-            Stack<Pair<House, House>> s = new Stack<>();
+            Queue<Pair<House, House>> s = new LinkedList<>();
             House initial = edges.get(0).getKey();
             HashMap<House, Boolean> h = new HashMap<>();
             for(Pair<House, House> p : edges) {
                 h.put(p.getValue(), false);
                 if( p.getKey().equals(initial) ) s.add(p);
-                parents.put(p.getValue(), initial);
             }
             h.put(initial, false);
             while(!s.isEmpty()) {
-                Pair<House, House> curr = s.pop();
+                Pair<House, House> curr = s.remove();
                 if(h.get(curr.getValue())) continue;
                 h.put(curr.getValue(), true);
                 h.put(curr.getKey(), true);
-                tour.add(curr);
-                parents.put(curr.getValue(), curr.getKey());
+                bfsEdges.add(curr);
                 System.out.println(curr.getKey() + " " + curr.getValue());
                 for(Pair<House, House> p : edges) {
                     if( p.getKey().getCoords().equals(curr.getValue().getCoords()) ) s.add(p);
                 }
             }
-
-            this.tour = parseToPoints(tour);
+            this.tour = parseToPoints(bfsEdges);
         } else {
-            tour = parseToPoints(edges);
+            this.tour = parseToPoints(edges);
         }
         currentTour = 0;
         moveThrough(currentTour);
@@ -78,14 +77,17 @@ public class DeliveryCycle extends Character {
         return points;
     }
 
-    public void move() {
+    public Pair<Point2D, Point2D> move() {
         if(currentTour != -1) {
             setCoords( new Point2D( getCoords().getX() + movement.getX(), getCoords().getY() + movement.getY() ) );
             checkDistance();
+            return currentPoints;
         }
+        return null;
     }
 
     public void moveThrough(int currentTour) {
+        currentPoints = tour.get(currentTour);
         setCoords( tour.get(currentTour).getKey() );
         setMovement(calculateMovement(tour.get(currentTour).getKey(), tour.get(currentTour).getValue()));
     }
@@ -95,7 +97,7 @@ public class DeliveryCycle extends Character {
             currentTour++;
             if(currentTour >= tour.size()) {
                 currentTour = -1;
-                setCoords( new Point2D(Math.round(getCoords().getX()), Math.round(getCoords().getY())));
+                setCoords( tour.get(0).getKey() );
                 return;
             }
             moveThrough(currentTour);

@@ -10,7 +10,6 @@ public abstract class Element {
     private GraphicsContext context;
 
     public Element(GraphicsContext context) {
-        setState(0);
         this.context = context;
     }
 

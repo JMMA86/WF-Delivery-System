@@ -59,12 +59,10 @@ public class InitController {
     // Structures and constants for graphical purposes
 
     private GraphicsContext context;
-    private final int BACKGROUND =0, UNSELECTED = 1, SELECTED_HOUSE = 2, SELECTED_HQ = 3;
+    private final int BACKGROUND =0, PATH = 1;
     private final Color[] COLOR_PALETTE = new Color[]{
-            Color.web("#5dab54"), // background
-            Color.web("#4293bd"), // unselected
-            Color.web("#5748b7"), // selected house
-            Color.web("#de213e"), // selected hq
+            Color.web("#89d05b"), // background
+            Color.web("#f9cc23") // streets
     };
     String imgDir = System.getProperty("user.dir") + "/src/main/resources/img/";
     private final Image[] pictures = new Image[]{
@@ -78,7 +76,7 @@ public class InitController {
     private ArrayList<House> houses;
     House selectedHouse, selectedHQ;
     private ArrayList<Street> streets;
-    private final int x_dim = 17, y_dim = 9;
+    private final int x_dim = 21, y_dim = 9;
     public Stage stage;
     DeliveryCycle cycle;
     private ArrayList<Pair<Point2D, Point2D>> path;
@@ -154,8 +152,16 @@ public class InitController {
         context.setTransform(affine);
         // Rectangle2D bounds = Screen.getPrimary().getVisualBounds();
         Rectangle2D bounds = new Rectangle2D(0, 0 , stage.getWidth(), stage.getHeight());
-        canvas.setHeight(bounds.getHeight() * 0.7);
+        canvas.setHeight(bounds.getHeight() * 0.6);
         canvas.setWidth(bounds.getWidth() * 0.9);
+
+        // buttons
+        Set<Node> buttons = stage.getScene().getRoot().lookupAll(".button");
+
+        for(Node b : buttons) {
+            double textSize = bounds.getHeight()*0.015;
+            ( (Button) b ).setStyle(String.format("-fx-font-size: %fpt;", textSize));
+        }
 
         if( canvas.getWidth()/ (x_dim-1) > canvas.getHeight()/ (y_dim-1) ) {
             diff = Math.floor(canvas.getHeight()/ (y_dim-1));
@@ -167,42 +173,43 @@ public class InitController {
 
         double h_padding = (bounds.getWidth() - canvas.getWidth())/2, v_padding = bounds.getHeight()*0.05;
         layout.setPadding( new Insets( v_padding, h_padding, v_padding, h_padding ));
-        wfTitleLbl.setFont(Font.font( wfTitleLbl.getFont().toString(), FontWeight.BOLD, bounds.getHeight()*0.03 + 11));
+        wfTitleLbl.setFont(Font.font( wfTitleLbl.getFont().toString(), FontWeight.BOLD, bounds.getHeight()*0.05));
 
         // painting
         context.setFill(Color.rgb(rnd.nextInt(256), rnd.nextInt(256), rnd.nextInt(256)));
         context.setFill(COLOR_PALETTE[BACKGROUND]);
-        context.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        context.fillRoundRect(0, 0, canvas.getWidth(), canvas.getHeight(), diff/2, diff/2);
 
         for(Street s : streets) {
-            drawLine( s.getP1(), s.getP2(), Color.GRAY , 0.75);
+            drawLine( s.getP1(), s.getP2(), Color.GRAY , 1);
         }
 
         for(Pair<Point2D, Point2D> s : path) {
-            drawLine( s.getKey(), s.getValue(), Color.TURQUOISE, 0.75);
+            drawLine( s.getKey(), s.getValue(), COLOR_PALETTE[PATH], 1);
         }
 
-        for(Character h : houses) h.draw(diff, 0.75);
-
-        for(Street s : streets) {
-            fillWeights(s.getP1(), s.getP2(), 0.75);
-        }
-
-        cycle.draw(diff, 0.75);
-        cycle.move();
-
-        if(cycle.getCoords().getX() < takenPoints.length) {
+        Pair<Point2D, Point2D> currentEdge = cycle.move();
+        if(currentEdge != null) {
+            path.add(currentEdge);
             try {
-                House closest = houses.stream().filter( h ->  Math.round(cycle.getCoords().getX()) == h.getCoords().getX()
-                    && Math.round(cycle.getCoords().getY()) == h.getCoords().getY()).findFirst().get();
-                if( Math.sqrt( Math.pow(closest.getCoords().getX() - cycle.getCoords().getX(), 2) + Math.pow(closest.getCoords().getY() - cycle.getCoords().getY(), 2)) < 0.1 ) {
-                    closest.setState(1);
+                List<House> toVisit = houses.stream().filter( h -> currentEdge.getKey().equals(h.getCoords()) || currentEdge.getValue().equals(h.getCoords()) ).toList();
+                for(House h : toVisit) {
+                    h.setState(1);
                 }
             } catch (NoSuchElementException e) {
                 e.printStackTrace();
             }
         }
 
+        for(Character h : houses) h.draw(diff, 0.75);
+
+
+
+        for(Street s : streets) {
+            fillWeights(s.getP1(), s.getP2(), 0.75, canvas.getHeight()*0.02);
+        }
+
+        cycle.draw(diff, 0.75);
         // System.out.println(selectedHQ.getCoords());
     }
 
@@ -222,7 +229,7 @@ public class InitController {
                 selectedHQ.setState(1);
             }
             // repeat until the number of vertices is reached
-            int verticesPerTree = 30;
+            int verticesPerTree = 34;
             while (houses.size() % verticesPerTree != 0) {
                 // generate a random point one cell separated from the current
                 int nx = (int) currElement.getCoords().getX() + rnd.nextInt(-1, 2), ny = (int) currElement.getCoords().getY() + rnd.nextInt(-1, 2);
@@ -246,7 +253,7 @@ public class InitController {
                 }
             }
             int edgeCnt = 0;
-            while(edgeCnt < 30) {
+            while(edgeCnt < 25) {
                 House h1 = houses.get(rnd.nextInt(verticesPerTree *i, houses.size()));
                 House h2 = houses.get(rnd.nextInt(verticesPerTree *i, houses.size()));
                 if(Math.abs(h1.getCoords().getY() - h2.getCoords().getY()) > 1 || Math.abs(h1.getCoords().getX()-h2.getCoords().getX()) > 1) {
@@ -293,16 +300,17 @@ public class InitController {
         context.setLineWidth(diff/6*scale);
         context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
         // white dashes
-        context.setStroke(Color.WHITE);
+        context.setStroke(Color.web("#dbdbdb"));
         context.setLineWidth(diff/40*scale);
         context.setLineDashes(diff/9*scale);
         context.strokeLine(p1.getX()* diff, p1.getY()* diff, p2.getX()* diff, p2.getY()* diff);
     }
 
-    private void fillWeights(Point2D p1, Point2D p2, double scale) {
+    private void fillWeights(Point2D p1, Point2D p2, double scale, double size) {
         double dx = (p2.getX()*diff - p1.getX()*diff)/3, dy = (p2.getY()*diff - p1.getY()*diff)/3;
         int weight = streets.stream().filter( s -> (s.getP1().equals(p1) && s.getP2().equals(p2)) || (s.getP1().equals(p1) && s.getP2().equals(p1)) ).map( s -> s.getWeight() ).findFirst().get();
-        context.setFill(Color.RED);
+        context.setFont(Font.font(weight+"", FontWeight.BOLD, size));
+        context.setFill(Color.web("#f30c2c"));
         context.fillText(weight+"" ,(p1.getX()*diff+dx - diff/8*scale), (p1.getY()*diff+dy) + diff/8*scale );
     }
 
@@ -332,6 +340,10 @@ public class InitController {
             } catch(NoSuchElementException e) {
                 e.getStackTrace();
             }
+            checkDeliveryBtn.setDisable(false);
+        } else {
+            checkDeliveryBtn.setDisable(true);
+            resetHouses();
         }
     }
     public void onCheckDelivery(ActionEvent actionEvent) throws VertexNotAchievableException, VertexNotFoundException {
@@ -341,27 +353,33 @@ public class InitController {
             return;
         }
         if( !Launcher.getManager().checkPathBetweenHouses(selectedHQ, selectedHouse) ) {
+            ArrayList<Pair<House, House>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
+            edges.removeIf(e -> !Launcher.getManager().checkPathBetweenHouses( selectedHQ, e.getKey() ) );
+            path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
+            for(House h : houses.stream().filter( h -> Launcher.getManager().checkPathBetweenHouses(selectedHQ, h)).toList()) {
+                h.setState(1);
+            }
             Launcher.showAlert(Alert.AlertType.INFORMATION, "Unreachable House", "House is not connected to the current headquarter");
             return;
         }
         ArrayList<Pair<House, House>> edges = Launcher.getManager().calculateMinimumPath(selectedHQ, selectedHouse);
-        path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
+        // path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
         cycle.setTour(edges, false);
     }
 
     public void onGenerateTour(ActionEvent actionEvent) throws VertexNotFoundException, VertexNotAchievableException {
         resetMovements();
-        selectedHouse = null;
+        resetHouses();
         ArrayList<Pair<House, House>> edges = Launcher.getManager().generateDeliveryTour(selectedHQ);
         edges.removeIf(e -> !Launcher.getManager().checkPathBetweenHouses( selectedHQ, e.getKey() ) );
 
-        path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
+        // path.addAll( edges.stream().map( e -> new Pair<>(e.getKey().getCoords(), e.getValue().getCoords()) ).toList() );
         cycle.setTour(edges, true);
     }
 
     public void onViewGraphs(ActionEvent actionEvent) {
         resetMovements();
-        Pair<FXMLLoader, Stage> handlers = Launcher.renderView("graph-representations.fxml", 1280, 480);
+        Pair<FXMLLoader, Stage> handlers = Launcher.renderView("graph-representations.fxml", 940, 480);
         GraphRepresentationController controller = handlers.getKey().getController();
         controller.initialize(Launcher.getManager().getList().toString(), Launcher.getManager().getMatrix().toString());
     }
@@ -374,6 +392,11 @@ public class InitController {
         }
         path = new ArrayList<>();
         cycle.resetMovement();
+    }
+
+    private void resetHouses() {
+        if(selectedHouse != null) selectedHouse.setState(0);
+        selectedHouse = null;
     }
 
     public void onExit(ActionEvent actionEvent) {

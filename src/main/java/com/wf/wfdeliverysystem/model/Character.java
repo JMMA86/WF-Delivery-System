@@ -8,11 +8,16 @@ import javafx.scene.paint.Color;
 public abstract class Character extends Element {
     private Point2D coords;
     private Image picture;
+    private final Color[] COLOR_PALETTE = new Color[] {
+            Color.web("#8699E2"), // unselected
+            Color.web("#ec1327"), // selected house
+    };
 
     public Character(double size, GraphicsContext context, Point2D coords, Image picture) {
         super(context);
         this.coords = coords;
         this.picture = picture;
+        setState(0);
     }
 
     public Image getPicture() {
@@ -46,10 +51,7 @@ public abstract class Character extends Element {
 
     @Override
     public void setState(int state) {
-        switch (state) {
-            case 0 -> setBackground(Color.BEIGE);
-            case 1 -> setBackground(Color.RED);
-        }
+        setBackground(COLOR_PALETTE[state]);
     }
 }
 

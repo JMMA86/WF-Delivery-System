@@ -302,7 +302,9 @@ public class ListGraph<T> implements IGraph<T> {
     public String toString() {
         StringBuilder ans = new StringBuilder();
         for(ListVertex<T> u : list) {
-            ans.append(String.format("%s -> { ", u.getValue()));
+            int limit = 6;
+            String valueStr = String.format("%" + limit +  "s", u.getValue());
+            ans.append(String.format("%s -> { ", valueStr));
             for(ListVertex<T> v : u.getEdges().stream().map(ListEdge::getRightVertex).toList() ) {
                 ans.append(String.format("%s, ", v.getValue()));
             }

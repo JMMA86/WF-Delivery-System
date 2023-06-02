@@ -6,7 +6,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
+<?import java.net.URL?>
 <VBox fx:id="layout" alignment="CENTER" spacing="8" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.wf.wfdeliverysystem.controller.InitController">
+    <stylesheets>
+        <URL value="@styles.css" />
+    </stylesheets>
 
     <Label text="WFDelivery" fx:id="wfTitleLbl">
     <font>
@@ -42,12 +46,12 @@
     <Canvas fx:id="canvas" height="800" onMouseClicked="#onVertexSelected" width="1500" />
 
     <Region VBox.vgrow="ALWAYS"/>
-    <HBox spacing="8">
-        <Button fx:id="checkDeliveryBtn" onAction="#onCheckDelivery" text="Check Delivery Path">
+    <HBox spacing="16">
+        <Button fx:id="generateTourBtn" onAction="#onGenerateTour" text="Generate Advertising Tour">
          <font>
             <Font size="14.0" />
          </font></Button>
-        <Button fx:id="generateTourBtn" onAction="#onGenerateTour" text="Generate Advertising Tour">
+        <Button fx:id="checkDeliveryBtn" onAction="#onCheckDelivery" text="Check Delivery Path" disable="true">
          <font>
             <Font size="14.0" />
          </font></Button>

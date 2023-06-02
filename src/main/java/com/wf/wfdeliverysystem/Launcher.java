@@ -13,7 +13,7 @@ import javafx.util.Pair;
 import java.io.IOException;
 
 public class Launcher extends Application {
-    public static final Manager manager = new Manager(90);
+    public static final Manager manager = new Manager(102);
 
     public static Manager getManager() {
         return manager;
@@ -30,7 +30,7 @@ public class Launcher extends Application {
     public void start(Stage stage) throws IOException {
         Pair<FXMLLoader, Stage> handlers = renderView("init-view.fxml", 1280, 720);
         InitController controller = handlers.getKey().getController();
-        stage.setOnCloseRequest(windowEvent -> {
+        handlers.getValue().setOnCloseRequest(windowEvent -> {
             controller.setRunning(false);
         });
         controller.setStage(handlers.getValue());
