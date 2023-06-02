@@ -97,6 +97,44 @@ public class ManagerTest {
         }
     }
 
+    // FR2 - Create House connections
+    @Test
+    void addHouseConnection() {
+        sampleGraphSetup();
+        assertDoesNotThrow( () -> manager.addEdge(houses.get(3), houses.get(7), "", 30) );
+        assertTrue(manager.checkPathBetweenHouses(houses.get(3), houses.get(7)));
+    }
+
+    @Test
+    void addExistingConnection() {
+        sampleGraphSetup();
+        assertThrows( MultipleEdgesNotAllowedException.class, () -> manager.addEdge( houses.get(3),houses.get(6), "", 100) );
+    }
+    @Test
+    void addEdgesNonExistentHouses() {
+        initHouses();
+        assertThrows( VertexNotFoundException.class, () -> manager.addEdge( houses.get(3),houses.get(6), "", 100) );
+    }
+
+    // FR3 - Verify path between houses
+    @Test
+    void checkNonExistentPath() {
+        sampleGraphSetup();
+        assertFalse( manager.checkPathBetweenHouses(houses.get(10), houses.get(14)) );
+    }
+
+    @Test
+    void checkExistentLongPath() {
+        sampleGraphSetup();
+        assertTrue( manager.checkPathBetweenHouses(houses.get(10), houses.get(9)) );
+    }
+
+    @Test
+    void checkEdgeAsPath() {
+        sampleGraphSetup();
+        assertTrue( manager.checkPathBetweenHouses(houses.get(1), houses.get(3)) );
+    }
+
 
 
 }
