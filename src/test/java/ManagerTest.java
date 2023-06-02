@@ -1,14 +1,9 @@
-import com.wf.wfdeliverysystem.implementations.IGraph;
 import com.wf.wfdeliverysystem.exceptions.*;
-import com.wf.wfdeliverysystem.implementations.ListGraph;
-import com.wf.wfdeliverysystem.implementations.MatrixGraph;
-import javafx.util.Pair;
-
-import java.util.ArrayList;
+import javafx.util.*;
+import java.util.*;
 import com.wf.wfdeliverysystem.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -135,6 +130,74 @@ public class ManagerTest {
         assertTrue( manager.checkPathBetweenHouses(houses.get(1), houses.get(3)) );
     }
 
+    // FR4 - Calculate minimum Path
+    @Test
+    void minimumPathIsLonger() throws VertexNotAchievableException, VertexNotFoundException {
+        sampleGraphSetup();
+        ArrayList<Pair<House, House>> path = manager.calculateMinimumPath(houses.get(1), houses.get(3));
+        assertEquals(3, path.size());
+    }
 
+    @Test
+    void minimumPathIsEdge() throws VertexNotAchievableException, VertexNotFoundException {
+        sampleGraphSetup();
+        ArrayList<Pair<House, House>> path = manager.calculateMinimumPath(houses.get(1), houses.get(10));
+        assertEquals(1, path.size());
+    }
+    @Test
+    void minimumPathDoesNotExist() {
+        sampleGraphSetup();
+        assertThrows( VertexNotAchievableException.class, () -> manager.calculateMinimumPath(houses.get(1), houses.get(13)));
+    }
+
+    // FR5 - Calculate tour
+    @Test
+    void unconnectedHouseTour() throws VertexNotFoundException {
+        sampleGraphSetup();
+        House newHouse = new House(1, null, null, null, 15+"");
+        houses.add(newHouse);
+        try {
+            manager.addHouse(newHouse);
+        } catch (VertexAlreadyAddedException e) {
+            throw new RuntimeException(e);
+        }
+
+        ArrayList<Pair<House, House>> path = manager.generateDeliveryTour(houses.get(15));
+        boolean hasEdges = false;
+        for(Pair<House, House> p : path) {
+            if( p.getKey().equals(houses.get(15)) ) hasEdges = true;
+        }
+        assertFalse(hasEdges);
+
+    }
+
+    @Test
+    void calculateTourLinear() throws VertexNotFoundException {
+        sampleGraphSetup();
+        ArrayList<Pair<House, House>> path = manager.generateDeliveryTour(houses.get(11));
+        boolean visited = false;
+        for(Pair<House, House> p : path) {
+            if( p.getValue().equals(houses.get(14)) ) {
+                visited = true;
+                assertEquals(houses.get(12), p.getKey()); // 14 is reachable with the minimum path when going to 12 first
+            }
+        }
+        assertTrue(visited);
+    }
+
+    @Test
+    void calculateTourCheckVisited() throws VertexNotFoundException {
+        sampleGraphSetup();
+        ArrayList<Pair<House, House>> path = manager.generateDeliveryTour(houses.get(3));
+        HashMap<House, Boolean> visited = new HashMap<>();
+        for(Pair<House, House> p : path) {
+            visited.put(p.getValue(), true);
+        }
+        for(int i=1; i<=10; i++) {
+            if(i != 3) {
+                assertTrue( visited.get(houses.get(i)) );
+            }
+        }
+    }
 
 }
