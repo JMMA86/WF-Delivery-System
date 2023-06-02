@@ -128,7 +128,7 @@ public class InitController {
             double zoomFactor = event.getDeltaY() > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
             double newZoomLevel = zoomLevel * zoomFactor;
             if (newZoomLevel >= 1.0) {
-                System.out.println(preX + " " + preY);
+                // System.out.println(preX + " " + preY);
                 if(zoomFactor > 1) {
                     preX = event.getX();
                     preY = event.getY();
