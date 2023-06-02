@@ -1,0 +1,23 @@
+.button {
+    -fx-padding: 8 12 8 12;
+    -fx-background-insets: 0,0 0 5 0, 0 0 6 0, 0 0 7 0;
+    -fx-background-radius: 8;
+    -fx-background-color: "#7d3ae0";
+    -fx-font-weight: bold;
+    -fx-font-size: 1.1em;
+    -fx-text-fill: white;
+}
+
+.button:hover {
+    -fx-background-color: "#9c69e7"
+}
+
+.button:pressed {
+    -fx-background-insets:2 0 0 0,2 0 3 0,2 0 4 0,2 0 5;
+}
+
+.jfx-radio-button {
+    -fx-font-family: "Arial";
+    -fx-selected-color: "#9c69e7";
+    -fx-unselected-color: "#d4bef5";
+}
