@@ -16,7 +16,7 @@ public class TestMatrixGraph {
     private IGraph<Integer> matrixGraphInt;
 
     void setUpGraph() {
-        matrixGraph = new MatrixGraph<>(false, 5);
+        matrixGraph = new MatrixGraph<>(false, 10);
     }
 
     void addFiveVertexes() throws VertexAlreadyAddedException {
@@ -69,6 +69,31 @@ public class TestMatrixGraph {
     }
 
     @Test
+    public void addSingleEdgeWithLoopException() {
+        try {
+            addFiveVertexes();
+            matrixGraph.addEdge("a", "a", "1", 10);
+            fail();
+        } catch (VertexAlreadyAddedException | VertexNotFoundException | LoopsNotAllowedException |
+                 MultipleEdgesNotAllowedException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void addMultipleConnectionsTwoVertex() {
+        try {
+            addFiveVertexes();
+            matrixGraph.addEdge("a", "b","1", 10);
+            matrixGraph.addEdge("a", "b","1", 10);
+            fail();
+        } catch (VertexAlreadyAddedException | VertexNotFoundException | LoopsNotAllowedException |
+                 MultipleEdgesNotAllowedException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
     public void deleteVertexMultipleConnections() {
         try {
             addFiveVertexes();
@@ -95,6 +120,46 @@ public class TestMatrixGraph {
     }
 
     @Test
+    public void deleteVertexSingleConnection() {
+        try {
+            addFiveVertexes();
+            matrixGraph.addEdge("a", "c", "1", 10);
+            matrixGraph.addEdge("a", "b", "1", 10);
+            matrixGraph.addEdge("b", "c", "1", 10);
+            matrixGraph.addEdge("e", "a", "1", 10);
+
+            matrixGraph.deleteVertex("e");
+
+            assertFalse(matrixGraph.searchEdge("a", "e", "1"));
+            fail();
+        } catch (VertexAlreadyAddedException | LoopsNotAllowedException | MultipleEdgesNotAllowedException e){
+            fail();
+        } catch (VertexNotFoundException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    @Test
+    public void deleteVertexNoConnections() {
+        try {
+            addFiveVertexes();
+            matrixGraph.addEdge("a", "c", "1", 10);
+            matrixGraph.addEdge("a", "b", "1", 10);
+            matrixGraph.addEdge("b", "c", "1", 10);
+            matrixGraph.addEdge("e", "a", "1", 10);
+
+            matrixGraph.deleteVertex("d");
+
+            matrixGraph.addEdge("a", "d", "1", 10);
+            fail();
+        } catch (VertexAlreadyAddedException | LoopsNotAllowedException | MultipleEdgesNotAllowedException e){
+            fail();
+        } catch (VertexNotFoundException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
     public void deleteMultipleEdges() {
         try {
             addFiveVertexes();
@@ -108,6 +173,44 @@ public class TestMatrixGraph {
 
             assertFalse(matrixGraph.searchEdge("b", "d", "1"));
             assertFalse(matrixGraph.searchEdge("a", "b", "1"));
+        } catch (VertexAlreadyAddedException | VertexNotFoundException | LoopsNotAllowedException |
+                 MultipleEdgesNotAllowedException | EdgeNotFoundException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void deleteNonExistingEdge() {
+        try {
+            addFiveVertexes();
+            matrixGraph.addEdge("a", "c", "1", 10);
+            matrixGraph.addEdge("a", "b", "1", 10);
+            matrixGraph.addEdge("b", "d", "1", 10);
+            matrixGraph.addEdge("d", "e", "1", 10);
+
+            matrixGraph.deleteEdge("a", "e", "1");
+
+            fail();
+        } catch (VertexAlreadyAddedException | VertexNotFoundException | LoopsNotAllowedException |
+                 MultipleEdgesNotAllowedException e) {
+            fail();
+        } catch (EdgeNotFoundException e) {
+            assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void deleteMultipleNonConnectedEdges() {
+        try {
+            addFiveVertexes();
+            matrixGraph.addEdge("a", "c", "1", 10);
+            matrixGraph.addEdge("b", "d", "1", 10);
+
+            matrixGraph.deleteEdge("a", "c", "1");
+            matrixGraph.deleteEdge("b", "d", "1");
+
+            assertFalse(matrixGraph.searchEdge("a", "c", "1"));
+            assertFalse(matrixGraph.searchEdge("b", "d", "1"));
         } catch (VertexAlreadyAddedException | VertexNotFoundException | LoopsNotAllowedException |
                  MultipleEdgesNotAllowedException | EdgeNotFoundException e) {
             fail();
@@ -176,6 +279,81 @@ public class TestMatrixGraph {
             }
         } catch (LoopsNotAllowedException | VertexAlreadyAddedException | MultipleEdgesNotAllowedException |
                  VertexNotFoundException e) {
+            fail();
+        }
+    }
+
+    @Test
+    public void twoBranchesConnected() {
+        try {
+            addFiveVertexes();
+            matrixGraph.addVertex("f");
+            matrixGraph.addVertex("g");
+            matrixGraph.addVertex("h");
+            matrixGraph.addVertex("i");
+
+            matrixGraph.addEdge("a", "b", "1", 3);
+            matrixGraph.addEdge("a", "c", "1", 3);
+            matrixGraph.addEdge("b", "d", "1", 3);
+            matrixGraph.addEdge("c", "e", "1", 3);
+            matrixGraph.addEdge("d", "f", "1", 3);
+            matrixGraph.addEdge("e", "g", "1", 3);
+            matrixGraph.addEdge("f", "h", "1", 3);
+            matrixGraph.addEdge("g", "i", "1", 3);
+            matrixGraph.addEdge("b", "c", "1", 10);
+            matrixGraph.addEdge("d", "e", "1", 10);
+            matrixGraph.addEdge("f", "g", "1", 10);
+            matrixGraph.addEdge("h", "i", "1", 10);
+
+            ArrayList<Pair<String, String>> mst = matrixGraph.prim("a");
+
+            assertEquals(8, mst.size());
+
+            for (Pair<String, String> p : mst) {
+                assertTrue(matrixGraph.searchEdge(p.getKey(), p.getValue(), ""));
+                //System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
+            }
+        } catch (LoopsNotAllowedException | VertexAlreadyAddedException | MultipleEdgesNotAllowedException |
+                 VertexNotFoundException e) {
+            //System.out.println(e.getMessage());
+            fail();
+        }
+    }
+
+    @Test
+    public void mstZigZag() {
+        try {
+            setUpGraph();
+            matrixGraph.addVertex("a");
+            matrixGraph.addVertex("b");
+            matrixGraph.addVertex("c");
+            matrixGraph.addVertex("d");
+            matrixGraph.addVertex("e");
+            matrixGraph.addVertex("f");
+            matrixGraph.addVertex("g");
+            matrixGraph.addVertex("h");
+            matrixGraph.addVertex("i");
+
+            matrixGraph.addEdge("a", "c", "1", 3);
+            matrixGraph.addEdge("a", "b", "1", 3);
+            matrixGraph.addEdge("b", "e", "1", 3);
+            matrixGraph.addEdge("c", "d", "1", 3);
+            matrixGraph.addEdge("d", "g", "1", 3);
+            matrixGraph.addEdge("g", "h", "1", 3);
+            matrixGraph.addEdge("e", "f", "1", 3);
+            matrixGraph.addEdge("f", "i", "1", 3);
+
+            ArrayList<Pair<String, String>> mst = matrixGraph.prim("a");
+
+            assertEquals(8, mst.size());
+
+            for (Pair<String, String> p : mst) {
+                assertTrue(matrixGraph.searchEdge(p.getKey(), p.getValue(), ""));
+                //System.out.println("Origin: " + p.getKey() + " Dest: " + p.getValue());
+            }
+        } catch (LoopsNotAllowedException | VertexAlreadyAddedException | MultipleEdgesNotAllowedException |
+                 VertexNotFoundException e) {
+            //System.out.println(e.getMessage());
             fail();
         }
     }

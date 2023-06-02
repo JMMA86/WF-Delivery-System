@@ -23,19 +23,6 @@ public class MatrixGraph<T> implements IGraph<T> {
     }
 
     /**
-     * This constructor is used to create a graph that is pondered
-     *
-     * @param isDirected Determines if the graph is directed
-     * @param isPondered Determines if the graph have weights in its connections
-     * @param vertices   Determines the amount of vertices in the graph
-     */
-    public MatrixGraph(boolean isDirected, int vertices, boolean isPondered) {
-        this.isDirected = isDirected;
-        this.vertices = new MatrixVertex[vertices];
-        this.matrix = new int[vertices][vertices];
-    }
-
-    /**
      * This function adds a vertex to the graph, if the graph is full it will return
      * false
      *
@@ -66,9 +53,8 @@ public class MatrixGraph<T> implements IGraph<T> {
         int vertex2 = searchVertexIndex(end);
 
         if (vertex1 == vertex2) throw new LoopsNotAllowedException("Loops are not allowed");
-        if (matrix[vertex1][vertex2] != 0) throw new MultipleEdgesNotAllowedException("Multiples edges are not allowed");
-
         if (vertex1 != -1 && vertex2 != -1) {
+            if (matrix[vertex1][vertex2] != 0) throw new MultipleEdgesNotAllowedException("Multiples edges are not allowed");
             if (isDirected) {
                 matrix[vertex1][vertex2] = weight;
             } else {
