@@ -1,7 +1,6 @@
 package com.wf.wfdeliverysystem.model;
 
-import com.wf.wfdeliverysystem.exceptions.VertexNotAchievableException;
-import com.wf.wfdeliverysystem.exceptions.VertexNotFoundException;
+import com.wf.wfdeliverysystem.exceptions.*;
 import com.wf.wfdeliverysystem.implementations.IGraph;
 import com.wf.wfdeliverysystem.implementations.ListGraph;
 import com.wf.wfdeliverysystem.implementations.MatrixGraph;
@@ -17,18 +16,26 @@ public class Manager implements IWFDelivery {
     private final IGraph<House> list;
     private final IGraph<House> matrix;
 
-    public IGraph<House> getList() {
-        return list;
-    }
-
-    public IGraph<House> getMatrix() {
-        return matrix;
-    }
-
-
     public Manager(int vertices) {
         list = new ListGraph<>(false, false, false);
         matrix = new MatrixGraph<>(false, vertices);
+    }
+
+    public void addHouse(House h) throws VertexAlreadyAddedException {
+        list.addVertex(h);
+        matrix.addVertex(h);
+    }
+
+    public void addEdge(House h1, House h2, String id, int weight) throws LoopsNotAllowedException, MultipleEdgesNotAllowedException, VertexNotFoundException {
+        list.addEdge(h1, h2, id, weight);
+        matrix.addEdge(h1, h2, id, weight);
+    }
+
+    public String[] printRepresentation() {
+        return new String[] {
+                list.toString(),
+                matrix.toString()
+        };
     }
 
     //Using BFS algorithm
@@ -76,7 +83,7 @@ public class Manager implements IWFDelivery {
     }
 
     public void setMatrix(boolean matrix) {
-        this.isMatrix = matrix;
+        isMatrix = matrix;
     }
 
     static public Manager getInstance() {

@@ -234,8 +234,7 @@ public class InitController {
             );
             takenPoints[(int) curr.getX()][(int) curr.getY()] = true;
             House currElement = new House(diff, context, curr, pictures[0], String.format("%d,%d", (int)curr.getX(), (int)curr.getY()));
-            Launcher.getManager().getList().addVertex(currElement);
-            Launcher.getManager().getMatrix().addVertex(currElement);
+            Launcher.getManager().addHouse(currElement);
             houses.add( currElement);
             if(selectedHQ == null) {
                 selectedHQ = houses.get(0);
@@ -259,10 +258,8 @@ public class InitController {
                     int weight = rnd.nextInt(1, 100);
                     streets.add( new Street(context, currElement.getCoords(), newElement.getCoords(), weight) );
                     houses.add( newElement );
-                    Launcher.getManager().getList().addVertex(newElement);
-                    Launcher.getManager().getMatrix().addVertex(newElement);
-                    Launcher.getManager().getList().addEdge(currElement, newElement, ""+houses.size(), weight);
-                    Launcher.getManager().getMatrix().addEdge(currElement, newElement, ""+houses.size(), weight);
+                    Launcher.getManager().addHouse(newElement);
+                    Launcher.getManager().addEdge(currElement, newElement, ""+houses.size(), weight);
                 }
             }
             int edgeCnt = 0;
@@ -274,8 +271,7 @@ public class InitController {
                 }
                 try {
                     int weight = rnd.nextInt(1, 100);
-                    Launcher.getManager().getList().addEdge(h1, h2, ""+houses.size(), weight);
-                    Launcher.getManager().getMatrix().addEdge(h1, h2, ""+houses.size(), weight);
+                    Launcher.getManager().addEdge(h1, h2, ""+houses.size(), weight);
                     streets.add( new Street(context, h1.getCoords(), h2.getCoords(), weight ) );
                     edgeCnt++;
                 } catch ( LoopsNotAllowedException | MultipleEdgesNotAllowedException e ) {
@@ -394,7 +390,7 @@ public class InitController {
         resetMovements();
         Pair<FXMLLoader, Stage> handlers = Launcher.renderView("graph-representations.fxml", 940, 480);
         GraphRepresentationController controller = handlers.getKey().getController();
-        controller.initialize(Launcher.getManager().getList().toString(), Launcher.getManager().getMatrix().toString());
+        controller.initialize(Launcher.getManager().printRepresentation()[0], Launcher.getManager().printRepresentation()[1]);
     }
 
     private void resetMovements() {
